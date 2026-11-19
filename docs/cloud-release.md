@@ -26,6 +26,8 @@
 
 ## 本次状态
 
+- 源码已推送至用户指定的独立仓库 `hysgit/tdb`，分支为 `main`。
+- 浏览器控制不可用时，可由 `.github/workflows/ios-compile.yml` 使用 GitHub 的 macOS 云端执行检查、测试和 iOS 原生编译。生成的是未签名的 `.app` 压缩包，不能通过 TestFlight 安装；分发仍由 Codemagic 签名发布工作流负责。
 - 工作流已写入并复用已核对的 Flutter / Xcode / CocoaPods 配置。
 - 当前浏览器控制的运行环境在初始化时失败：`windows sandbox failed: helper_unknown_error: setup refresh had errors`。两次 CUA 初始化及一次独立桌面控制初始化均失败，尚未进入网页操作。
 - 用户已明确指定并授权独立仓库 `https://github.com/hysgit/tdb.git`。远程检查未发现已有引用，本工程使用 `main` 分支；不再使用高效Todo仓库的独立分支。

@@ -1,0 +1,50 @@
+name: Tdb iOS compile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ios-compile.yml'
+      - 'lib/**'
+      - 'ios/**'
+      - 'test/**'
+      - 'assets/**'
+      - 'pubspec.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - name: Check out Tdb
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - name: Resolve packages
+        run: flutter pub get
+      - name: Analyze and test
+        run: |
+          set -e
+          flutter analyze
+          flutter test
+      - name: Compile iOS without distribution signing
+        run: |
+          set -e
+          flutter build ios --release --no-codesign --build-number="$GITHUB_RUN_NUMBER"
+          ditto -c -k --sequesterRsrc --keepParent build/ios/iphoneos/Runner.app build/ios/Tdb-unsigned.zip
+      - name: Save compiled app
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Tdb-iOS-unsigned-${{ github.run_number }}
+          path: build/ios/Tdb-unsigned.zip
+          retention-days: 7
