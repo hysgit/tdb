@@ -1,0 +1,32 @@
+# Tdb 云构建与 TestFlight
+
+用户指定沿用“重实现 gxtudo 应用与服务端”会话中的 Codemagic 路径。已核对该工程的 `codemagic.yaml`，当前工程提供独立 `tdb-ios-testflight` 和 `tdb-ios-simulator` 工作流。
+
+## 身份
+
+| 项目 | 值 |
+|---|---|
+| 显示名称 | Tdb |
+| Bundle ID / Android applicationId | com.hysgit.tdb |
+| 版本 | 1.0.0 |
+| 本地构建号 | 1 |
+| 云构建号 | Codemagic BUILD_NUMBER |
+| Codemagic Apple 集成名 | tudo（沿用已有集成，需对新 App 有权限） |
+| 预期内部测试组 | Tdb 内测 |
+
+## 首次发布前配置
+
+1. 在同一 Apple Developer 团队登记 `com.hysgit.tdb`，配置对应的 App Store 分发证书及 provisioning profile。
+2. 在 App Store Connect 建立独立 App `Tdb`，选择该 Bundle ID，建立内部测试组 `Tdb 内测`，加入所需内部测试者。现有高效Todo的 App ID 和构建不能被此包复用。
+3. 在 Codemagic 接入本工程所在 Git 分支，确保可使用 `tudo` 集成及此 Bundle ID 的签名资源。
+4. 手动选择 `tdb-ios-testflight`，运行检查、测试、签名和 IPA 构建。该工作流上传并提交 TestFlight，指定内部测试组；不提交公开 App Store 审核。
+5. 核对 Apple 处理完成、构建可用及组内构建关联。只有这些记录成功才可标记“已发布”。
+
+若需先验证 iOS 编译，可运行不需要分发签名的 `tdb-ios-simulator`。所有密钥应留在 Codemagic 的安全配置中，不写入仓库。
+
+## 本次状态
+
+- 工作流已写入并复用已核对的 Flutter / Xcode / CocoaPods 配置。
+- 当前浏览器控制的运行环境在初始化时失败：`windows sandbox failed: helper_unknown_error: setup refresh had errors`。两次 CUA 初始化及一次独立桌面控制初始化均失败，尚未进入网页操作。
+- 本地 GitHub HTTPS 创建仓库凭据不可用；现有 Git SSH 访问与此前工程推送是另一条认证路径。尚未创建独立远程仓库。
+- 因此 Apple App 记录、签名配置、云构建和 TestFlight 分发均未在本次会话确认完成，不能据此文档声称已上传。

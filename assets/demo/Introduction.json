@@ -1,0 +1,209 @@
+[
+  {
+    "BTime" : 1.9476189613342285,
+    "content" : "We had a theory about China.",
+    "itemID" : "2FFDDADA-857C-40C7-B3B8-E22655542723",
+    "ATime" : 0.59727895259857178,
+    "indexNum" : 47,
+    "translation" : "我们有一个关于中国的设想。",
+    "favor" : false
+  },
+  {
+    "BTime" : 6.4958500862121582,
+    "content" : "We had read things. Watch the news, talk to people who had been there.",
+    "itemID" : "71146121-6535-4424-9A00-2F1D46AD5E7F",
+    "ATime" : 2.3248753547668457,
+    "indexNum" : 48,
+    "translation" : "我们读过一些东西。 看那里的新闻，和去过那里的人聊过。",
+    "favor" : false
+  },
+  {
+    "BTime" : 9.6537637710571289,
+    "content" : "We thought we had a reasonable picture of what to expect.",
+    "itemID" : "918F1F1A-10D3-4AD8-97BA-6B5D4754B4C2",
+    "ATime" : 6.9131064414978027,
+    "indexNum" : 49,
+    "translation" : "我们认为我们对预期情况有合理的了解。",
+    "favor" : false
+  },
+  {
+    "BTime" : 11.451360702514648,
+    "content" : "We were wrong.",
+    "itemID" : "D7311FE0-C053-40F6-A025-B3A51DA87338",
+    "ATime" : 10.68405818939209,
+    "indexNum" : 50,
+    "translation" : "我们错了。",
+    "favor" : false
+  },
+  {
+    "BTime" : 14.589274406433105,
+    "content" : "Not a little wrong, almost entirely wrong.",
+    "itemID" : "905D23F5-B54C-4D2A-A05F-4244BD207F2C",
+    "ATime" : 11.798617362976074,
+    "indexNum" : 51,
+    "translation" : "不是错了一点，几乎完全错了。",
+    "favor" : false
+  },
+  {
+    "BTime" : 19.459026336669922,
+    "content" : "This is the 1st video in a series about 22 days inside China.",
+    "itemID" : "F67AF4E8-824F-4ED0-9E1B-09AD8E3FCDE3",
+    "ATime" : 15.513809204101562,
+    "indexNum" : 52,
+    "translation" : "这是中国境内约22天的系列视频中的第1个。",
+    "favor" : false
+  },
+  {
+    "BTime" : 25.910614013671875,
+    "content" : "We traveled privately, just the 2 of us, with a different local guide in each city.",
+    "itemID" : "356ACBDF-DF96-43E9-95EB-BB938DCF5D94",
+    "ATime" : 20.715080261230469,
+    "indexNum" : 53,
+    "translation" : "这是我们的私人旅行，只有我们2个人，每个城市都有不同的当地导游。",
+    "favor" : false
+  },
+  {
+    "BTime" : 29.811565399169922,
+    "content" : "No tour buses, no group schedules,",
+    "itemID" : "EB0FC04E-9907-48D3-A2A3-54842A8B9495",
+    "ATime" : 26.222108840942383,
+    "indexNum" : 54,
+    "translation" : "没有旅游巴士，没有团体时间表，",
+    "favor" : false
+  },
+  {
+    "BTime" : 31.493402481079102,
+    "content" : "just us.",
+    "itemID" : "370CD991-C493-403D-9C54-6DCFA9887953",
+    "ATime" : 30.188819885253906,
+    "indexNum" : 55,
+    "translation" : "只有我们。",
+    "favor" : false
+  },
+  {
+    "BTime" : 34.827075958251953,
+    "content" : "Moving through one of the most extraordinary countries on Earth,",
+    "itemID" : "86AFBA4D-7FEF-4A28-83BD-160B667D96F9",
+    "ATime" : 31.860658645629883,
+    "indexNum" : 56,
+    "translation" : "穿越地球上最非凡的国家之一，",
+    "favor" : false
+  },
+  {
+    "BTime" : 37.046192169189453,
+    "content" : "trying our best to understand it.",
+    "itemID" : "443451BB-F7E5-483B-8BA3-4A451D61EA97",
+    "ATime" : 35.3143310546875,
+    "indexNum" : 57,
+    "translation" : "尽力去理解它。",
+    "favor" : false
+  },
+  {
+    "BTime" : 41.222904205322266,
+    "content" : "We are going to show you the landscapes and the food.",
+    "itemID" : "7E495B1F-4193-4265-AC4F-7D3006026D7A",
+    "ATime" : 37.924964904785156,
+    "indexNum" : 58,
+    "translation" : "我们将向您展示风景和食物。",
+    "favor" : false
+  },
+  {
+    "BTime" : 44.075057983398438,
+    "content" : "And the things you come to China to see.",
+    "itemID" : "F48155EE-9273-459B-8A7A-37B9F44ADFAB",
+    "ATime" : 41.805919647216797,
+    "indexNum" : 59,
+    "translation" : "还有你来中国会看的东西。",
+    "favor" : false
+  },
+  {
+    "BTime" : 51.846961975097656,
+    "content" : "But we are also going to try to explain something harder. What this country actually is, how it thinks,",
+    "itemID" : "BCEA79A1-1BBF-4F31-A011-76EDD4E781BF",
+    "ATime" : 44.86383056640625,
+    "indexNum" : 60,
+    "translation" : "但我们也会尝试解释一些更难的事情。 这个国家到底是怎么样的，它是怎么想的，",
+    "favor" : false
+  },
+  {
+    "BTime" : 55.074874877929688,
+    "content" : "what it has been through. Why it ended up here.",
+    "itemID" : "ECAB70DA-B7E1-49E6-924E-2619685C345D",
+    "ATime" : 52.198455810546875,
+    "indexNum" : 61,
+    "translation" : "它经历了什么。 为什么它最终会在这里。",
+    "favor" : false
+  },
+  {
+    "BTime" : 59.904624938964844,
+    "content" : "Because if you only watch the pretty pictures, you will miss the whole story.",
+    "itemID" : "399CFCD8-5F24-42B6-B656-4CCA055C30F8",
+    "ATime" : 56.195171356201172,
+    "indexNum" : 62,
+    "translation" : "因为如果你只看漂亮的图片，你会错过整个故事。",
+    "favor" : false
+  },
+  {
+    "BTime" : 61.877983093261719,
+    "content" : "My name is Tressa.",
+    "itemID" : "49EF9F10-ED7D-4FDC-9FA3-09A52E7C30E2",
+    "ATime" : 60.567642211914062,
+    "indexNum" : 63,
+    "translation" : "我叫Tressa。",
+    "favor" : false
+  },
+  {
+    "BTime" : 65.964698791503906,
+    "content" : "That guy you keep seeing on screen, exploring everything,",
+    "itemID" : "BCBD6083-CCBB-4627-962B-189DB440138F",
+    "ATime" : 62.325237274169922,
+    "indexNum" : 64,
+    "translation" : "你在屏幕上一直看到的那个家伙，探索着一切，",
+    "favor" : false
+  },
+  {
+    "BTime" : 67.91229248046875,
+    "content" : "sitting in every car.",
+    "itemID" : "A130A6B0-306A-4308-84A3-BBCC8FF19F5D",
+    "ATime" : 66.411956787109375,
+    "indexNum" : 65,
+    "translation" : "坐在每辆车里。",
+    "favor" : false
+  },
+  {
+    "BTime" : 70.327163696289062,
+    "content" : "That's my husband, Sarco.",
+    "itemID" : "B2232F63-896D-434A-9CDA-E77B0500F96E",
+    "ATime" : 68.339546203613281,
+    "indexNum" : 66,
+    "translation" : "那是我丈夫，Sarco。",
+    "favor" : false
+  },
+  {
+    "BTime" : 72.8778076171875,
+    "content" : "Together we run this channel.",
+    "itemID" : "AE7E6F39-5334-4CB4-BA5B-91C828F877BF",
+    "ATime" : 71.261703491210938,
+    "indexNum" : 67,
+    "translation" : "我们一起运营这个频道。",
+    "favor" : false
+  },
+  {
+    "BTime" : 77.511787414550781,
+    "content" : "And together we spent 22 days, traveling China privately.",
+    "itemID" : "C9ED7433-FD76-476B-9C98-F672619F08F9",
+    "ATime" : 73.259300231933594,
+    "indexNum" : 68,
+    "translation" : "我们一起花了22天时间，在中国私下旅行。",
+    "favor" : false
+  },
+  {
+    "BTime" : 84.856422424316406,
+    "content" : "We came back with more questions than answers, which honestly is the best possible outcome from any trip.",
+    "itemID" : "EEB4D9EB-334B-425D-A1AE-C2B55EE1C3FE",
+    "ATime" : 78.470573425292969,
+    "indexNum" : 69,
+    "translation" : "我们回来时的问题多于答案，老实说，这是任何旅行的最佳结果。片段来自于一对来中国旅行的博主。",
+    "favor" : false
+  }
+]

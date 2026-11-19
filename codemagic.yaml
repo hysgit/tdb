@@ -1,0 +1,68 @@
+workflows:
+  tdb-ios-testflight:
+    name: Tdb iOS TestFlight
+    max_build_duration: 90
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: tudo
+    environment:
+      flutter: 3.50.0
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.hysgit.tdb
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+    scripts:
+      - name: Resolve packages
+        script: flutter pub get
+      - name: Analyze and test
+        script: |
+          set -e
+          flutter analyze
+          flutter test
+      - name: Set up App Store signing
+        script: xcode-project use-profiles
+      - name: Build Tdb IPA
+        script: |
+          set -e
+          flutter build ipa --release \
+            --build-number="$BUILD_NUMBER" \
+            --export-options-plist="$HOME/export_options.plist"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/**/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        beta_groups:
+          - Tdb 内测
+
+  tdb-ios-simulator:
+    name: Tdb iOS Simulator
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.50.0
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Resolve packages
+        script: flutter pub get
+      - name: Analyze and test
+        script: |
+          set -e
+          flutter analyze
+          flutter test
+      - name: Build simulator package
+        script: |
+          set -e
+          flutter build ios --simulator --debug --build-number="$BUILD_NUMBER"
+          ditto -c -k --sequesterRsrc --keepParent build/ios/iphonesimulator/Runner.app build/ios/Tdb-Simulator.zip
+    artifacts:
+      - build/ios/Tdb-Simulator.zip
+      - /tmp/xcodebuild_logs/**/*.log

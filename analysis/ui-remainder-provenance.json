@@ -1,0 +1,67 @@
+[
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\ODXItemTableViewCell.nib",
+    "relative_path": "ODXItemTableViewCell.nib",
+    "sha256": "a077ea38a18bb35f76a52327eac82a4dda6cbf9ef5268b45b5243b445bc55c4c"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\ab3-oP-GV8-view-5C4-ov-Qp3.nib",
+    "relative_path": "Main.storyboardc/ab3-oP-GV8-view-5C4-ov-Qp3.nib",
+    "sha256": "d0e1ceca383ee2f7d669d1b294f23c24bffd3b01af2453363be8c1580efe9cbd"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\ivh-vt-NcK-view-vxF-Ki-hHB.nib",
+    "relative_path": "Main.storyboardc/ivh-vt-NcK-view-vxF-Ki-hHB.nib",
+    "sha256": "601d1ec796c5cee328e65d539a61c4801aa62b721f9f9079c9a19a96df2a422c"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\qXp-Bs-L9B-view-TIB-L9-YFc.nib",
+    "relative_path": "Main.storyboardc/qXp-Bs-L9B-view-TIB-L9-YFc.nib",
+    "sha256": "e01dda14a55b85545e83db3c9b2c3d71f96f4245277407371673e6b0afa707d0"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\RemindMeViewController.nib",
+    "relative_path": "Main.storyboardc/RemindMeViewController.nib",
+    "sha256": "967e0aaf90122fd2b73d6db67d0c67a73e3de0598dfab1441b77131c247b4525"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\RLC-Fb-BWl-view-NQG-78-uBl.nib",
+    "relative_path": "Main.storyboardc/RLC-Fb-BWl-view-NQG-78-uBl.nib",
+    "sha256": "cd32d22a28f828c502a74d670a112494eaf5711878e1f332c5be978ab05efc0f"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\rXK-O4-RDy-view-alN-ga-LYw.nib",
+    "relative_path": "Main.storyboardc/rXK-O4-RDy-view-alN-ga-LYw.nib",
+    "sha256": "5cd7eefc1eecc445972294109064ef3853e41f49c1925ec6d4db1b26e8771197"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\SettingsSetExitTimeViewController.nib",
+    "relative_path": "Main.storyboardc/SettingsSetExitTimeViewController.nib",
+    "sha256": "b6c3e054ed53850cb3cea7a2bfae0bed424f6a792d4fe5fc423eeead3b72fbd0"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\SettingsViewController.nib",
+    "relative_path": "Main.storyboardc/SettingsViewController.nib",
+    "sha256": "9e50948bbc3721e26f15a227c29abfaaa0bc316e2ef27d272e5cc1b3e28c1c8c"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\spC-Fm-HFI-view-z8d-h4-UjS.nib",
+    "relative_path": "Main.storyboardc/spC-Fm-HFI-view-z8d-h4-UjS.nib",
+    "sha256": "3018a5379e8adf41da3eda81e210a05e274897ec069fa6e752ce3b987e764990"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\Main.storyboardc\\UINavigationController-HyK-ea-hfL.nib",
+    "relative_path": "Main.storyboardc/UINavigationController-HyK-ea-hfL.nib",
+    "sha256": "5650e845df64d0c5b3c35eede9f1fd6c62ed5d97d081660c89ffcb8a0b397fcc"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\PlugIns\\URLShareExtension.appex\\Base.lproj\\MainInterface.storyboardc\\j1y-V4-xli-view-wbc-yd-nQP.nib",
+    "relative_path": "PlugIns/URLShareExtension.appex/Base.lproj/MainInterface.storyboardc/j1y-V4-xli-view-wbc-yd-nQP.nib",
+    "sha256": "4a29d5f6e25642030c4a50555e3738577d49c7669a1d7cb78e28780dac780589"
+  },
+  {
+    "source": "D:\\ai\\tingdubao\\analysis\\ipa\\Payload\\听读宝.app\\PlugIns\\URLShareExtension.appex\\Base.lproj\\MainInterface.storyboardc\\UINavigationController-Mhd-kM-gRQ.nib",
+    "relative_path": "PlugIns/URLShareExtension.appex/Base.lproj/MainInterface.storyboardc/UINavigationController-Mhd-kM-gRQ.nib",
+    "sha256": "8122951caa1824b04462aaf119216c29b0de2cd96b3487e03ae6b4d1ea940105"
+  }
+]

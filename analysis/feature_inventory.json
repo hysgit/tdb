@@ -1,0 +1,2105 @@
+{
+  "analysis_date": "2026-11-19",
+  "source_ipa": {
+    "path": "D:\\ai\\tingdubao\\tingdubao-1133575767.ipa",
+    "sha256": "1855ff8f2fe964d78fe5df14e4ebced990686d0f36ed71845c45b0202f11f337"
+  },
+  "identity": {
+    "CFBundleDisplayName": "听读宝",
+    "CFBundleShortVersionString": "7.8",
+    "CFBundleVersion": "261117.1",
+    "CFBundleIdentifier": "com.cubeTC.MP3",
+    "CFBundleExecutable": "听读宝"
+  },
+  "resource_sha256": {
+    "Info.plist": "afb8a54dc69c78de636f46ebea6d9fe329ca457f3d62177e8aaed52a37d69009",
+    "听读宝": "6a59f32fb4c4c23a64c1f364bcb7d96c4f4db8e67641b76bd968a1e2d326186a",
+    "ASPlayerDetailSettingsViewConfig.json": "f0fbd6db91ef0fd2a665d0b31264ad449b468b63afe00ca6c564096d73d97c1a",
+    "Introduction.txt": "bf70a328d81083372852002dd84577a7655583c11a002fe29ba2e5f1c1dbb809",
+    "settings.sqlite": "023d572034a2b40aaea8bc67a46964ac2f4a79daa43266ac2d77d0d06734eb5c"
+  },
+  "native": {
+    "format": "Mach-O 64-bit ARM64",
+    "encryption_commands": [
+      {
+        "load_command": "0x2c",
+        "load_command_file_offset": 5216,
+        "cryptoff": 16384,
+        "cryptsize": 24150016,
+        "cryptid": 1
+      }
+    ],
+    "dylib_load_commands": [
+      "/usr/lib/libbz2.1.0.dylib",
+      "/usr/lib/libc++.1.dylib",
+      "/usr/lib/libiconv.2.dylib",
+      "/usr/lib/libsqlite3.dylib",
+      "/usr/lib/libz.1.dylib",
+      "/System/Library/Frameworks/Accelerate.framework/Accelerate",
+      "/System/Library/Frameworks/AudioToolbox.framework/AudioToolbox",
+      "/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation",
+      "/System/Library/Frameworks/CoreText.framework/CoreText",
+      "/System/Library/Frameworks/Foundation.framework/Foundation",
+      "/System/Library/Frameworks/ImageIO.framework/ImageIO",
+      "/System/Library/Frameworks/MediaPlayer.framework/MediaPlayer",
+      "/System/Library/Frameworks/MobileCoreServices.framework/MobileCoreServices",
+      "/System/Library/Frameworks/Photos.framework/Photos",
+      "/System/Library/Frameworks/QuartzCore.framework/QuartzCore",
+      "/System/Library/Frameworks/Security.framework/Security",
+      "/System/Library/Frameworks/StoreKit.framework/StoreKit",
+      "/System/Library/Frameworks/SystemConfiguration.framework/SystemConfiguration",
+      "/System/Library/Frameworks/UIKit.framework/UIKit",
+      "@rpath/WCDBObjc.framework/WCDBObjc",
+      "@rpath/sqlcipher.framework/sqlcipher",
+      "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics",
+      "/usr/lib/libxml2.2.dylib",
+      "/System/Library/Frameworks/VideoToolbox.framework/VideoToolbox",
+      "/System/Library/Frameworks/IntentsUI.framework/IntentsUI",
+      "/usr/lib/liblzma.5.dylib",
+      "/System/Library/Frameworks/CarPlay.framework/CarPlay",
+      "/System/Library/Frameworks/CFNetwork.framework/CFNetwork",
+      "/System/Library/Frameworks/AVKit.framework/AVKit",
+      "/System/Library/Frameworks/AVFoundation.framework/AVFoundation",
+      "/System/Library/Frameworks/Intents.framework/Intents",
+      "/System/Library/Frameworks/CoreMedia.framework/CoreMedia",
+      "/System/Library/Frameworks/CoreVideo.framework/CoreVideo",
+      "/System/Library/Frameworks/Metal.framework/Metal",
+      "/System/Library/Frameworks/CoreAudio.framework/CoreAudio",
+      "/usr/lib/libobjc.A.dylib",
+      "/usr/lib/libSystem.B.dylib",
+      "/System/Library/Frameworks/AVFAudio.framework/AVFAudio",
+      "/System/Library/Frameworks/AppIntents.framework/AppIntents",
+      "/System/Library/Frameworks/AuthenticationServices.framework/AuthenticationServices",
+      "/System/Library/Frameworks/Charts.framework/Charts",
+      "/System/Library/Frameworks/Combine.framework/Combine",
+      "/System/Library/Frameworks/CoreBluetooth.framework/CoreBluetooth",
+      "/System/Library/Frameworks/CoreData.framework/CoreData",
+      "/System/Library/Frameworks/CoreImage.framework/CoreImage",
+      "/System/Library/Frameworks/CoreML.framework/CoreML",
+      "/System/Library/Frameworks/CoreServices.framework/CoreServices",
+      "/System/Library/Frameworks/CoreTelephony.framework/CoreTelephony",
+      "/System/Library/Frameworks/DeveloperToolsSupport.framework/DeveloperToolsSupport",
+      "/System/Library/Frameworks/FoundationModels.framework/FoundationModels",
+      "/System/Library/Frameworks/GSS.framework/GSS",
+      "/System/Library/Frameworks/MessageUI.framework/MessageUI",
+      "/System/Library/Frameworks/MetricKit.framework/MetricKit",
+      "/System/Library/Frameworks/NaturalLanguage.framework/NaturalLanguage",
+      "/System/Library/Frameworks/QuickLook.framework/QuickLook",
+      "/System/Library/Frameworks/SafariServices.framework/SafariServices",
+      "/System/Library/Frameworks/Speech.framework/Speech",
+      "/System/Library/Frameworks/SwiftUI.framework/SwiftUI",
+      "/System/Library/Frameworks/Symbols.framework/Symbols",
+      "/System/Library/Frameworks/Translation.framework/Translation",
+      "/System/Library/Frameworks/UniformTypeIdentifiers.framework/UniformTypeIdentifiers",
+      "/System/Library/Frameworks/UserNotifications.framework/UserNotifications",
+      "/System/Library/Frameworks/WebKit.framework/WebKit",
+      "/System/Library/Frameworks/_Translation_SwiftUI.framework/_Translation_SwiftUI",
+      "/usr/lib/swift/libswiftAVFoundation.dylib",
+      "/usr/lib/swift/libswiftAccelerate.dylib",
+      "/usr/lib/swift/libswiftCarPlay.dylib",
+      "/usr/lib/swift/libswiftCore.dylib",
+      "/usr/lib/swift/libswiftCoreAudio.dylib",
+      "/usr/lib/swift/libswiftCoreFoundation.dylib",
+      "/usr/lib/swift/libswiftCoreImage.dylib",
+      "/usr/lib/swift/libswiftCoreLocation.dylib",
+      "/usr/lib/swift/libswiftCoreMIDI.dylib",
+      "/usr/lib/swift/libswiftDarwin.dylib",
+      "/usr/lib/swift/libswiftDispatch.dylib",
+      "/usr/lib/swift/libswiftMetal.dylib",
+      "/usr/lib/swift/libswiftNaturalLanguage.dylib",
+      "/usr/lib/swift/libswiftOSLog.dylib",
+      "/usr/lib/swift/libswiftObjectiveC.dylib",
+      "/usr/lib/swift/libswiftObservation.dylib",
+      "/usr/lib/swift/libswiftQuartzCore.dylib",
+      "/usr/lib/swift/libswiftSpatial.dylib",
+      "/usr/lib/swift/libswiftUniformTypeIdentifiers.dylib",
+      "/usr/lib/swift/libswiftXPC.dylib",
+      "/usr/lib/swift/libswift_Concurrency.dylib",
+      "/usr/lib/swift/libswift_StringProcessing.dylib",
+      "/usr/lib/swift/libswiftos.dylib",
+      "/usr/lib/swift/libswiftsimd.dylib",
+      "/usr/lib/swift/libswiftFoundation.dylib",
+      "/usr/lib/swift/libswiftCoreGraphics.dylib",
+      "/usr/lib/swift/libswiftCoreMedia.dylib",
+      "/usr/lib/swift/libswiftUIKit.dylib",
+      "/usr/lib/swift/libswiftCoreML.dylib",
+      "/usr/lib/swift/libswiftNetwork.dylib"
+    ]
+  },
+  "declared_integration": {
+    "background_modes": [
+      "audio",
+      "bluetooth-central"
+    ],
+    "file_sharing": true,
+    "url_scheme_names": [
+      "tingdubao",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "shortcut_titles": [
+      "播放",
+      "暂停",
+      "上传"
+    ]
+  },
+  "ui_evidence": [
+    {
+      "path": "ui-evidence-decoded.json",
+      "evidence_id": "ev_030106e128e476ff5c7ef50bf0f116dec54809b6df367dd59572f3eeabde19a8",
+      "sha256": "11afe9a4b807432b4cd7100e66890b202645372cb9ba75e670f4b0195caa667d"
+    },
+    {
+      "path": "ui-evidence-remainder.json",
+      "evidence_id": "ev_d24f27d570b75752826ab375b5d8b0fd190cfe8e903732a882818dbab219dc84",
+      "sha256": "526894b2d212ea15de96841001dd3cc8ce23e799d3b7c4e39827cd610026598a"
+    }
+  ],
+  "ui_documents_count": 77,
+  "ui_documents": {
+    "ASABCardDetailView.nib": {
+      "sha256": "0e8dbca90b380273058cb98aa098beb6990a676afb0e441af3200e2d5d2b9b30",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "1/50"
+        },
+        {
+          "field": "UIText",
+          "value": "我是谁"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "deleteButton",
+        "indexLabel",
+        "playButton",
+        "titleLabel"
+      ],
+      "custom_classes": [
+        "ASABCardDetailView"
+      ]
+    },
+    "ASAudioMakeBaseControlItemCell.nib": {
+      "sha256": "642cec958cd1c67947e8955b88382df787e487a0353ff81e57e298937acf3b45",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "titleLabel"
+      ],
+      "custom_classes": [
+        "ASAudioMakeBaseControlItemCell"
+      ]
+    },
+    "ASAudioMakeDetailConfigCell.nib": {
+      "sha256": "39e4e5838fb94dcef61073287147eda346c415a2ce3a4a5317e1b49ff977d505",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "原音"
+        },
+        {
+          "field": "UITitle",
+          "value": "录音"
+        },
+        {
+          "field": "UITitle",
+          "value": "速度:1x"
+        },
+        {
+          "field": "UITitle",
+          "value": "间隔:自动"
+        },
+        {
+          "field": "UITitle",
+          "value": "次数:1"
+        },
+        {
+          "field": "UITitle",
+          "value": "Button"
+        }
+      ],
+      "actions": [
+        "countButtonAction:",
+        "intervalButtonAction:",
+        "originalAudioButtonAction:",
+        "playAudioButtonAction:",
+        "recordAudioButtonAction:",
+        "resetDefaultButtonAction:",
+        "speedButtonAction:"
+      ],
+      "outlets": [
+        "contentLabel",
+        "countButton",
+        "favorView",
+        "originalAudioButton",
+        "pauseIntervalButton",
+        "playButton",
+        "recordAudioButton",
+        "resetDefaultButton",
+        "speedButton",
+        "timeLabel"
+      ],
+      "custom_classes": [
+        "ASAudioMakeDetailConfigCell"
+      ]
+    },
+    "ASAudioMakeStepItem.nib": {
+      "sha256": "265281d51ae8f0230b21e111a83fc8c5789c5b22423c7eb5cd19c4efba4cba91",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "1"
+        }
+      ],
+      "actions": [
+        "stepperButtonAction:"
+      ],
+      "outlets": [
+        "indexLabel",
+        "rightSeperatorLine",
+        "stepperButton",
+        "titleLabel"
+      ],
+      "custom_classes": [
+        "ASAudioMakeStepItem"
+      ]
+    },
+    "ASAutoSplitSentenceAlertView.nib": {
+      "sha256": "0fcd9568608a3961355410fe1c902a44854b4c63ffe68af9cfb7310f257c5208",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "自动分句"
+        },
+        {
+          "field": "UIText",
+          "value": "自动分句"
+        },
+        {
+          "field": "UIText",
+          "value": "语音识别"
+        },
+        {
+          "field": "UIText",
+          "value": "语音识别语种"
+        },
+        {
+          "field": "UIText",
+          "value": "翻译"
+        },
+        {
+          "field": "UIText",
+          "value": "翻译语言"
+        },
+        {
+          "field": "UIText",
+          "value": "tip"
+        },
+        {
+          "field": "UITitle",
+          "value": "取消"
+        },
+        {
+          "field": "UITitle",
+          "value": "试用"
+        },
+        {
+          "field": "UITitle",
+          "value": "确定"
+        }
+      ],
+      "actions": [
+        "autoSplitABSwitchAction:",
+        "cancelButtonAction:",
+        "confirmButtonAction:",
+        "recognizationButtonAction:",
+        "recognizationLineDidClicked:",
+        "recognizeSwitchAction:",
+        "translationABSwitchAction:"
+      ],
+      "outlets": [
+        "autoSegmentLine",
+        "autoSegmentSwitch",
+        "autoSegmentSwitchTitleLabel",
+        "buttonContentView",
+        "cancelButton",
+        "confirmButton",
+        "contentView",
+        "contentViewHeight",
+        "lineContainerViewHeight",
+        "lineContentView",
+        "recognizationButton",
+        "recognizationLanguageTypeLine",
+        "recognizationLanguageTypeLineTitleLabel",
+        "recognizationLanguageTypeLineValueLabel",
+        "recognizationLine",
+        "recognizationLineSwitch",
+        "recognizationLineTitleLabel",
+        "tipsLabel",
+        "titleLabel",
+        "translationLabel",
+        "translationLanguageLineView",
+        "translationLanguageTitleLabel",
+        "translationLanguageTypeLabel",
+        "translationLineView",
+        "translationSwitch",
+        "visualEffectView"
+      ],
+      "custom_classes": [
+        "ASAutoSplitSentenceAlertView"
+      ]
+    },
+    "ASBlurButton.nib": {
+      "sha256": "a623fb855b2840ca45af190a0792289b7316607fa91c7ee567f4226475b43798",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "button"
+      ],
+      "custom_classes": [
+        "ASBlurButton"
+      ]
+    },
+    "ASCountDownView.nib": {
+      "sha256": "a6f647f49d9c5f518d29a05125d3765bcbd1276df48abb7d95f60d2d9037b77d",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "帮助"
+        },
+        {
+          "field": "UIText",
+          "value": "点击任意位置继续播放"
+        }
+      ],
+      "actions": [
+        "helpButtonAction:"
+      ],
+      "outlets": [
+        "bgView",
+        "bottomSeperatorView",
+        "centerLabel",
+        "contentView",
+        "cstrContentViewBottomMargin",
+        "cstrContentViewHeight",
+        "helpButton"
+      ],
+      "custom_classes": [
+        "ASCountDownView"
+      ]
+    },
+    "ASCustomSpeedSetCell.nib": {
+      "sha256": "4c8f4ff788adf8b4e9af6d9310939991bc063cf9d20e3652da4b2999fe41dd45",
+      "texts": [],
+      "actions": [
+        "stepperAction:"
+      ],
+      "outlets": [
+        "cellTitle",
+        "stepper"
+      ],
+      "custom_classes": [
+        "ASCustomSpeedSetCell"
+      ]
+    },
+    "ASDetailSpeedView.nib": {
+      "sha256": "4223d2e381f65ce914e4a8dbb63a624a25d5b39036e705dc2086652389b8a3a6",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "0.1"
+        },
+        {
+          "field": "UIText",
+          "value": "3.0"
+        }
+      ],
+      "actions": [
+        "sliderAction:"
+      ],
+      "outlets": [
+        "curLabel",
+        "maxLabel",
+        "minLabel",
+        "slider",
+        "visualEffectView"
+      ],
+      "custom_classes": [
+        "ASDetailSpeedView"
+      ]
+    },
+    "ASDictationView.nib": {
+      "sha256": "74547868dc375285b559d85c332159d344953a28aec51fb1be4bd4c634d0b7bc",
+      "texts": [],
+      "actions": [],
+      "outlets": [],
+      "custom_classes": [
+        "ASDictationView"
+      ]
+    },
+    "ASFastTagView.nib": {
+      "sha256": "af50649fe6dda0526c1526bdc9d2ff96ea9f4de1621eb6024f6c05324a043bdb",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "自动添加A"
+        },
+        {
+          "field": "UIText",
+          "value": "打点"
+        },
+        {
+          "field": "UIText",
+          "value": "帮助"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "helpLabel",
+        "tagButton",
+        "titleLabel"
+      ],
+      "custom_classes": [
+        "ASFastTagView"
+      ]
+    },
+    "ASFavorBottomControlView.nib": {
+      "sha256": "167c37c4d33777e34e95bf8da533d18a989ed01f4302f77d5da5e33202df8529",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "pageControl",
+        "scrollView"
+      ],
+      "custom_classes": [
+        "ASFavorBottomControlView"
+      ]
+    },
+    "ASFileListHeaderButtonItemView.nib": {
+      "sha256": "70a6d427b660ee84a69c47536d603dc8175f6bdc202002ca22c71375af310179",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "button",
+        "label",
+        "progressContentView"
+      ],
+      "custom_classes": [
+        "ASFileListHeaderButtonItemView"
+      ]
+    },
+    "ASFontSetCell.nib": {
+      "sha256": "04f69cd6689b98d8d476a8d44fe02cbc2daafc1e7262c86607b7e981c3a03eb0",
+      "texts": [],
+      "actions": [
+        "sliderAction:",
+        "sliderTouchUpInside:",
+        "sliderTouchUpOutside:"
+      ],
+      "outlets": [
+        "currentFontSizeLabel",
+        "slider"
+      ],
+      "custom_classes": [
+        "ASFontSetCell"
+      ]
+    },
+    "ASLRCEditController.nib": {
+      "sha256": "985f040eaf4a2cb0ead4fd34357582b74ff0b9412f1cc4ada4972408881a2247",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "保存"
+        }
+      ],
+      "actions": [
+        "saveButtonAction:"
+      ],
+      "outlets": [
+        "saveButton",
+        "textView",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "ASLRCTimeEditCell.nib": {
+      "sha256": "243110c2ee876d5b612cd5db4f2e39bd98f00c237d971798419a8e7ef2b94b1a",
+      "texts": [],
+      "actions": [
+        "updateTimeButtonAction:"
+      ],
+      "outlets": [
+        "contentLabel",
+        "timeLabel",
+        "updateTimeButton"
+      ],
+      "custom_classes": [
+        "ASLRCTimeEditCell"
+      ]
+    },
+    "ASPGeneralSettingsSwitchCell.nib": {
+      "sha256": "8f7db754bbe67035f44956fbd969b5a6f824e6da028cd84139d5c7df84a1660d",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "settingSwitch",
+        "settingTitleLabel"
+      ],
+      "custom_classes": [
+        "ASPGeneralSettingsSwitchCell"
+      ]
+    },
+    "ASPlayRepeatSettingsSwitchLineView.nib": {
+      "sha256": "f8213819eef8aab4b5ab0dc87f3c794a3cf584f94fbf7a5d99cd3c380a8b7b5d",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "switchView",
+        "titleLabel"
+      ],
+      "custom_classes": [
+        "ASPlayRepeatSettingsSwitchLineView"
+      ]
+    },
+    "ASPlayerDetailSliderView.nib": {
+      "sha256": "bf8e400f88c63424ba13c921025b19d332eddee87c2fde13b83e8645f04ca7fc",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "00:00"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "curTimeLabel",
+        "time2Label",
+        "timeSlider"
+      ],
+      "custom_classes": [
+        "ASPlayerDetailSliderView"
+      ]
+    },
+    "ASPlayerSpeedControl.nib": {
+      "sha256": "296bdc9990994c5dd13a7ebe1f74b06ecf277d26718bd16df739034e796b4ada",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "当前速度:"
+        },
+        {
+          "field": "UITitle",
+          "value": "自定义速度"
+        }
+      ],
+      "actions": [
+        "customSpeedAction:",
+        "segmentAction:"
+      ],
+      "outlets": [
+        "curSpeedLabel",
+        "segmentControl",
+        "speedTipLabel"
+      ],
+      "custom_classes": [
+        "_TtC11AudioPlayer20ASPlayerSpeedControl"
+      ]
+    },
+    "ASPrivacyShowController.nib": {
+      "sha256": "766e134e0ee71da395ea826c128393fe64c7044514041c1751c8359839683548",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "个人信息保护指引"
+        },
+        {
+          "field": "UITitle",
+          "value": "取消"
+        },
+        {
+          "field": "UITitle",
+          "value": "确定"
+        }
+      ],
+      "actions": [
+        "agreeAction:",
+        "disagreeAction:"
+      ],
+      "outlets": [
+        "cancelButton",
+        "confirmButton",
+        "contentView",
+        "effectView",
+        "textViewConterner",
+        "titleLabel",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "ASRepeatIntervalSegment.nib": {
+      "sha256": "5189d060b8c1a65ca269d463da5827b30e2a4ef90427039a36431f6b05e94f0f",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "AB重复间隔"
+        },
+        {
+          "field": "UITitle",
+          "value": "自定义间隔"
+        }
+      ],
+      "actions": [
+        "customSpeedAction:",
+        "segmentAction:"
+      ],
+      "outlets": [
+        "curSpeedLabel",
+        "customSetIntervalButton",
+        "segmentControl",
+        "speedTipLabel"
+      ],
+      "custom_classes": [
+        "_TtC11AudioPlayer23ASRepeatIntervalSegment"
+      ]
+    },
+    "ASRepeatSpeedSetCell.nib": {
+      "sha256": "1a75db7c32cfb51d89d71db31d04abcdd34e7b4e6e650a9d578c8c96f1053b0d",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "repeatTitleLabel",
+        "stepper",
+        "valueLabel"
+      ],
+      "custom_classes": [
+        "ASRepeatSpeedSetCell"
+      ]
+    },
+    "ASSongTableViewCell.nib": {
+      "sha256": "68bae2f7b62f43bb821366e451697d869b30b5f94d728845614ad171049b2038",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "123123"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "folderSongCount",
+        "pathLabel",
+        "progressView",
+        "songImg",
+        "songTitle",
+        "typeLabel"
+      ],
+      "custom_classes": [
+        "ASSongTableViewCell"
+      ]
+    },
+    "ASTimeControl.nib": {
+      "sha256": "6f4aa039bf73b6be341567bcbb6ebe859d7d544fc38641350dac1aab0c6def4d",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "00:00"
+        },
+        {
+          "field": "UIText",
+          "value": "00:00"
+        }
+      ],
+      "actions": [
+        "sliderAction:"
+      ],
+      "outlets": [
+        "time1Label",
+        "time2Label",
+        "timeSlider"
+      ],
+      "custom_classes": [
+        "ASTimeControl"
+      ]
+    },
+    "ASTimeIndicatorBackgroudView.nib": {
+      "sha256": "99dcb78b11afb2ba0cc60467f0c7995f615fd23e3d7df86e294bfa423ca4f29e",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "timeLabel"
+      ],
+      "custom_classes": [
+        "ASTimeIndicatorBackgroudView"
+      ]
+    },
+    "ASTingXieABSelectCell.nib": {
+      "sha256": "b025ec0b3822c953dc2a261989d99e6774780020b58a39003668390028e8d152",
+      "texts": [],
+      "actions": [
+        "playAudioButtonAction:"
+      ],
+      "outlets": [
+        "contentLabel",
+        "playButton",
+        "timeLabel"
+      ],
+      "custom_classes": [
+        "ASTingXieABSelectCell"
+      ]
+    },
+    "ASTingXieRepeatPropertySelectView.nib": {
+      "sha256": "bcd8053c6ff656a4128438a8e972c5f0fc1317eefc1f317c4d84607dc60bd872",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "pickerView",
+        "titleLabel"
+      ],
+      "custom_classes": [
+        "ASTingXieRepeatPropertySelectView"
+      ]
+    },
+    "ASVideoSeperatorView.nib": {
+      "sha256": "9bccd1f782b30b5ef6d9990a4121c780202de8676c09ff29051e008a0175b250",
+      "texts": [],
+      "actions": [],
+      "outlets": [],
+      "custom_classes": [
+        "ASVideoSeperatorView"
+      ]
+    },
+    "Base.lproj/ASABCountControl.nib": {
+      "sha256": "b7c31ef7fa07e370856d3556e7448796521cae8985fd916685ccd738182afa38",
+      "texts": [],
+      "actions": [
+        "customSpeedAction:",
+        "segmentAction:"
+      ],
+      "outlets": [
+        "countSetButton",
+        "curSpeedLabel",
+        "segmentControl",
+        "speedTipLabel"
+      ],
+      "custom_classes": [
+        "_TtC11AudioPlayer16ASABCountControl"
+      ]
+    },
+    "Base.lproj/ASFastSetABView.nib": {
+      "sha256": "6b678d792c48624a63755d58c94a0d369614dd9c9d8036c19103625ca1a064c0",
+      "texts": [],
+      "actions": [
+        "AButtonAction:",
+        "BButtonAction:",
+        "autoAButtonAction:"
+      ],
+      "outlets": [
+        "AButton",
+        "BButton",
+        "autoAButton"
+      ],
+      "custom_classes": [
+        "ASFastSetABView"
+      ]
+    },
+    "FavorBottomItemView1.nib": {
+      "sha256": "d71531d30b18630ba40582cac80d8339cd74fdb04e2d3ab16da55b1fc4be7467",
+      "texts": [],
+      "actions": [
+        "nextButtonAction:",
+        "playButtonAction:",
+        "preButtonAction:"
+      ],
+      "outlets": [
+        "nextButton",
+        "playButton",
+        "preButton"
+      ],
+      "custom_classes": [
+        "FavorBottomItemView1"
+      ]
+    },
+    "LaunchScreen.storyboardc/UITabBarController-XEb-Be-zF0.nib": {
+      "sha256": "93aeaebafd7c77cd54d572d575c90f5c6a1c3626204b659ee9beee7d8daaf4c2",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "UITabBarController"
+      ]
+    },
+    "LaunchScreen.storyboardc/ZeB-VP-FEc-view-kmM-2S-AHd.nib": {
+      "sha256": "5d9ccfae7af3215d5dc88222b0f08bd626d923841e66998621dc7f1ca6105ca0",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "MSCBaiduCloudDiskDownloadStatusCell.nib": {
+      "sha256": "d81feaca7699c3df1c44b1f97f8cb15dea34615a3cc7062c6db8db7fc6991105",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "fileImageView",
+        "fileNameLabel",
+        "infoLabel",
+        "progressView",
+        "toggleDownloadButton"
+      ],
+      "custom_classes": [
+        "MSCBaiduCloudDiskDownloadStatusCell"
+      ]
+    },
+    "MSCBaiduCloudDiskListCell.nib": {
+      "sha256": "c199d66645bc19b49b20d574e561f397d891bd5e699d6dc347b8b889608d3f1c",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "已下载"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "downloadedLabel",
+        "fileImageView",
+        "fileNameLabel",
+        "fileSelectionButton",
+        "timeLabel"
+      ],
+      "custom_classes": [
+        "MSCBaiduCloudDiskListCell",
+        "MSCBaiduDiskFileSelectButton"
+      ]
+    },
+    "MSCBaiduCloudDiskVIPProductView.nib": {
+      "sha256": "a39f36bd03abd0d865c8dd3ea197726a7fffd25c1fb419f3c1e3afd469e231e7",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "开通百度网盘超级会员，尊享急速下载"
+        },
+        {
+          "field": "UIText",
+          "value": "通过APP购买享更低价格"
+        },
+        {
+          "field": "UIText",
+          "value": "*每位用户享受优惠不同，具体价格以最终付款价格为准"
+        },
+        {
+          "field": "UIText",
+          "value": "推广"
+        }
+      ],
+      "actions": [
+        "openAD:"
+      ],
+      "outlets": [
+        "imageView"
+      ],
+      "custom_classes": [
+        "MSCBaiduCloudDiskVIPProductView"
+      ]
+    },
+    "Main.storyboardc/56t-Jv-EOU-view-t1i-hd-C1N.nib": {
+      "sha256": "5cd7eefc1eecc445972294109064ef3853e41f49c1925ec6d4db1b26e8771197",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/5M2-OF-DcL-view-6d2-Lb-830.nib": {
+      "sha256": "52fca5538ed0fd8391355092ff9b7e2cdf2674f1d633fa4f60be97021cb0dcc1",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "cstrBottomSeperatorLineHeigh",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/6Jx-Zt-pRb-view-iIM-G5-SIp.nib": {
+      "sha256": "7d89076027349231e56ab3b756db2aa8f017fbaa64d7c480f963b01a05f64ffc",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "titleImg",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/7LO-UQ-qZ0-view-5gk-yt-jHq.nib": {
+      "sha256": "d11c0063a908c5671399e14e021d21304a8dc2368257bfefcf064b2160419315",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "mainTable",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/ASABCardController.nib": {
+      "sha256": "37be53be4ca9e0a9dfdf713b86a40267ff88ee4ca403b1b593fa8fd879446376",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASABCardController"
+      ]
+    },
+    "Main.storyboardc/ASAudioMakeBaseControlConfigController.nib": {
+      "sha256": "b036da90dd76165907e100c57073fdb4b9a5bfacbbcafb0ab88171dfb4dee5cd",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASAudioMakeBaseControlConfigController"
+      ]
+    },
+    "Main.storyboardc/ASDiscoverViewController.nib": {
+      "sha256": "62f6548a3b571def6d3b571d7635783cb429f5b461db494cd617a5532bf913c7",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASDiscoverViewController"
+      ]
+    },
+    "Main.storyboardc/ASListeningFileViewController.nib": {
+      "sha256": "a5f356b63db30e43ea0c3af630698ce898406551177ee622864bb37edfef99e3",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASListeningFileViewController"
+      ]
+    },
+    "Main.storyboardc/ASMainController.nib": {
+      "sha256": "78d36a338ee79508bee51fc2c0efdb26982531afc3420b0939d504953db97ddd",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "添加"
+        }
+      ],
+      "actions": [
+        "perform:"
+      ],
+      "outlets": [
+        "sceneViewController",
+        "storyboard",
+        "viewController"
+      ],
+      "custom_classes": [
+        "ASMainController"
+      ]
+    },
+    "Main.storyboardc/ASMeController.nib": {
+      "sha256": "67f21890b4be030297e3d7bc8567e4b27536b27b75e12399134e46e1fd55bb3e",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASMeController"
+      ]
+    },
+    "Main.storyboardc/ASRecordViewController.nib": {
+      "sha256": "d1eaf2a20ca797d0f7e787d9beb0e78f9ace5baaf88b0b169444ca1df1609860",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASRecordViewController"
+      ]
+    },
+    "Main.storyboardc/ASWiFiController.nib": {
+      "sha256": "89be5b171b0e0cd9791d663f9ec21f61192b445745bb22a3235ab3f1ff9b4a96",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASWiFiController"
+      ]
+    },
+    "Main.storyboardc/AddSourceFromeMusicViewController.nib": {
+      "sha256": "c3727a6bd8d259caa7ec23b8f4ce027b6eccb1c667b9fabf49a9059844933791",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASAddFileFromMusicController"
+      ]
+    },
+    "Main.storyboardc/AddSourceViewController.nib": {
+      "sha256": "d8dbc3c5d385efb7c93b9d895c5f343ed3ec0c2ce881133a20d949f83ff9ed5d",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASAddSourceController"
+      ]
+    },
+    "Main.storyboardc/BYZ-38-t0r-view-8bC-Xf-vdC.nib": {
+      "sha256": "dd03d359ecb4310710b50b03ff32a019180ba26c029c6029ee2940c514f6eb44",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/FEBAMultiUploadViewController.nib": {
+      "sha256": "6e015a405469ba14ec97e91d2bc72a9f6ebb37aa452202203e681538fa6659b7",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASMultiUploadViewController"
+      ]
+    },
+    "Main.storyboardc/FileReceiveController.nib": {
+      "sha256": "597ee0d65e753ef6c699deef9144c55a45e62abb453db4a5d248f41e74cb2236",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASFileReceiveController"
+      ]
+    },
+    "Main.storyboardc/FileSendController.nib": {
+      "sha256": "5b1819db33e3fd8e6e125240696c275b8bdc19fb539a4182c4d8081706bcf30c",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASFileSendController"
+      ]
+    },
+    "Main.storyboardc/FileSyncController.nib": {
+      "sha256": "28a9eff1d202a78afa3330d484836ba70af165e1d5761cfaf7b0922ff405c8ca",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASFileSyncController"
+      ]
+    },
+    "Main.storyboardc/FzG-Ah-H8V-view-GoU-7g-mAF.nib": {
+      "sha256": "4db175f45d7879d5f8df4738fa56d71bc8142f6bae93e4af848ca590ba477fb8",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "已购买"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "CSTR_logoImgBottomMargin",
+        "CSTR_logoImgTopMargin",
+        "logoImg",
+        "mainTable",
+        "tlabel",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/GlR-Ga-5r9-view-gBm-TR-hR7.nib": {
+      "sha256": "c8439e2a92ed9cb50c488a26b7a73721a3962c2320af808df8f30a0c9bebd4a7",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "5:20"
+        },
+        {
+          "field": "UITitle",
+          "value": "Button"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "CSTR_SeparatorLineH",
+        "datePicker",
+        "startORStopButton",
+        "timeLabel",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/MZ5-9C-LDN-view-P1y-tt-rg1.nib": {
+      "sha256": "659c8e8699d0d704f49465577d0d581ff697b6377ebe394a9e03d8a23cb93788",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "被同步"
+        },
+        {
+          "field": "UITitle",
+          "value": "同步"
+        },
+        {
+          "field": "UITitle",
+          "value": "帮助视频"
+        }
+      ],
+      "actions": [
+        "helpButtonAction:",
+        "receiveButtonAction:",
+        "sendButtonAction:"
+      ],
+      "outlets": [
+        "receiveFileButton",
+        "sendFileButton",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/NEB-as-qkq-view-ML2-3H-jik.nib": {
+      "sha256": "e9e7b5d7ff093e8efece8b2bfb5af26648ec91b4956f62c515ddc41e37a5d0cd",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "Note:"
+        },
+        {
+          "field": "UITitle",
+          "value": "Button"
+        }
+      ],
+      "actions": [
+        "nextCardButtonAction:"
+      ],
+      "outlets": [
+        "cardBottomContentView",
+        "cardDetailContentView",
+        "cardSubDetailContentView",
+        "detailTextView",
+        "forgotConfirmView",
+        "memberLevelLabel",
+        "nextCardButton",
+        "placeHolderView1",
+        "placeHolderView2",
+        "remeberedConfirmView",
+        "view"
+      ],
+      "custom_classes": [
+        "ASCardRemeberStateView"
+      ]
+    },
+    "Main.storyboardc/NLb-qB-VTi-view-7dW-Qb-GO3.nib": {
+      "sha256": "dd03d359ecb4310710b50b03ff32a019180ba26c029c6029ee2940c514f6eb44",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/Oi0-V2-hgg-view-eSm-Ci-NTb.nib": {
+      "sha256": "5cd7eefc1eecc445972294109064ef3853e41f49c1925ec6d4db1b26e8771197",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/PlayerDetailViewController.nib": {
+      "sha256": "6835df3911d523541374087075fa5a34688c8157053043f188d5e4ba71c65791",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASPlayDetailController"
+      ]
+    },
+    "Main.storyboardc/R1J-xg-T44-view-Zcr-k7-1UO.nib": {
+      "sha256": "1db7d419d1b5903ddb57165a1a154a6d794a25f0988e17fc27fea6689260df24",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "mainTable",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/RLC-Fb-BWl-view-NQG-78-uBl.nib": {
+      "sha256": "cd32d22a28f828c502a74d670a112494eaf5711878e1f332c5be978ab05efc0f",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "帮助"
+        }
+      ],
+      "actions": [
+        "helpAction:"
+      ],
+      "outlets": [
+        "helpButton",
+        "tableView",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/RemindMeViewController.nib": {
+      "sha256": "967e0aaf90122fd2b73d6db67d0c67a73e3de0598dfab1441b77131c247b4525",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASRemindMeViewController"
+      ]
+    },
+    "Main.storyboardc/SettingsSetExitTimeViewController.nib": {
+      "sha256": "b6c3e054ed53850cb3cea7a2bfae0bed424f6a792d4fe5fc423eeead3b72fbd0",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASSetExitTimeViewController"
+      ]
+    },
+    "Main.storyboardc/SettingsViewController.nib": {
+      "sha256": "9e50948bbc3721e26f15a227c29abfaaa0bc316e2ef27d272e5cc1b3e28c1c8c",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASSettingsController"
+      ]
+    },
+    "Main.storyboardc/UINavigationController-HyK-ea-hfL.nib": {
+      "sha256": "5650e845df64d0c5b3c35eede9f1fd6c62ed5d97d081660c89ffcb8a0b397fcc",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ASAddSourceController"
+      ]
+    },
+    "Main.storyboardc/ab3-oP-GV8-view-5C4-ov-Qp3.nib": {
+      "sha256": "d0e1ceca383ee2f7d669d1b294f23c24bffd3b01af2453363be8c1580efe9cbd",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "请勿退出此页面"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "statusLabel",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/ivh-vt-NcK-view-vxF-Ki-hHB.nib": {
+      "sha256": "601d1ec796c5cee328e65d539a61c4801aa62b721f9f9079c9a19a96df2a422c",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "Which days would you like to be reminded to learn?"
+        },
+        {
+          "field": "UITitle",
+          "value": "05:00"
+        },
+        {
+          "field": "UITitle",
+          "value": "Cancel"
+        },
+        {
+          "field": "UIText",
+          "value": "What time of day?"
+        },
+        {
+          "field": "UITitle",
+          "value": "S"
+        },
+        {
+          "field": "UITitle",
+          "value": "M"
+        },
+        {
+          "field": "UITitle",
+          "value": "T"
+        },
+        {
+          "field": "UITitle",
+          "value": "W"
+        },
+        {
+          "field": "UITitle",
+          "value": "T"
+        },
+        {
+          "field": "UITitle",
+          "value": "F"
+        },
+        {
+          "field": "UITitle",
+          "value": "S"
+        },
+        {
+          "field": "UITitle",
+          "value": "Save"
+        }
+      ],
+      "actions": [
+        "FridayBtnClicked",
+        "MondayBtnClicked",
+        "SaturdayBtnClicked",
+        "SundayBtnClicked",
+        "ThursdayBtnClicked",
+        "TuesdayBtnClicked",
+        "WednesdayBtnClicked",
+        "cancelBtnClicked:",
+        "saveBtnClicked:",
+        "timeColckBtnClicked:"
+      ],
+      "outlets": [
+        "FridayBtn",
+        "MondayBtn",
+        "SaturdayBtn",
+        "SundayBtn",
+        "ThursdayBtn",
+        "TuesdayBtn",
+        "WednesdayBtn",
+        "cancelButton",
+        "datePicker",
+        "dayTipLabel",
+        "saveBtn",
+        "separatorLine1",
+        "separatorLine2",
+        "timeClock",
+        "timeTipLabel",
+        "view"
+      ],
+      "custom_classes": [
+        "ASReminderDayButton",
+        "ASSeparatorLine"
+      ]
+    },
+    "Main.storyboardc/qXp-Bs-L9B-view-TIB-L9-YFc.nib": {
+      "sha256": "e01dda14a55b85545e83db3c9b2c3d71f96f4245277407371673e6b0afa707d0",
+      "texts": [
+        {
+          "field": "UITitle",
+          "value": "生成音频"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "audioFileQuality",
+        "nextButtonContentView",
+        "nextStepButton",
+        "repeatCountView",
+        "separatorView",
+        "speedView",
+        "tableContentView",
+        "view"
+      ],
+      "custom_classes": [
+        "ASAudioMakeBaseControlView"
+      ]
+    },
+    "Main.storyboardc/rXK-O4-RDy-view-alN-ga-LYw.nib": {
+      "sha256": "5cd7eefc1eecc445972294109064ef3853e41f49c1925ec6d4db1b26e8771197",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "Main.storyboardc/spC-Fm-HFI-view-z8d-h4-UjS.nib": {
+      "sha256": "3018a5379e8adf41da3eda81e210a05e274897ec069fa6e752ce3b987e764990",
+      "texts": [
+        {
+          "field": "UIText",
+          "value": "1"
+        },
+        {
+          "field": "UIText",
+          "value": "1"
+        },
+        {
+          "field": "UIText",
+          "value": "请勿退出此页面，如果进度停止请重启连接。Apple Music 和 Inbox文件夹文件没有拷贝权限，无法同步。"
+        }
+      ],
+      "actions": [],
+      "outlets": [
+        "progressContentView",
+        "progressLabel",
+        "statusLabel",
+        "view"
+      ],
+      "custom_classes": []
+    },
+    "ODXItemTableViewCell.nib": {
+      "sha256": "a077ea38a18bb35f76a52327eac82a4dda6cbf9ef5268b45b5243b445bc55c4c",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "downloadStatus",
+        "label",
+        "tImageView"
+      ],
+      "custom_classes": [
+        "ODXItemTableViewCell"
+      ]
+    },
+    "PlugIns/URLShareExtension.appex/Base.lproj/MainInterface.storyboardc/UINavigationController-Mhd-kM-gRQ.nib": {
+      "sha256": "8122951caa1824b04462aaf119216c29b0de2cd96b3487e03ae6b4d1ea940105",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "sceneViewController",
+        "storyboard"
+      ],
+      "custom_classes": [
+        "ShareViewController",
+        "UINavigationController"
+      ]
+    },
+    "PlugIns/URLShareExtension.appex/Base.lproj/MainInterface.storyboardc/j1y-V4-xli-view-wbc-yd-nQP.nib": {
+      "sha256": "4a29d5f6e25642030c4a50555e3738577d49c7669a1d7cb78e28780dac780589",
+      "texts": [],
+      "actions": [],
+      "outlets": [
+        "view"
+      ],
+      "custom_classes": []
+    }
+  },
+  "archived_colors": [
+    {
+      "rgba": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "count": 13
+    },
+    {
+      "rgba": [
+        1,
+        0.5647,
+        0.1725,
+        1
+      ],
+      "count": 7
+    },
+    {
+      "rgba": [
+        0.6,
+        0.6,
+        0.6,
+        1
+      ],
+      "count": 4
+    },
+    {
+      "rgba": [
+        0.6034,
+        0.6034,
+        0.6034,
+        1
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0.9774,
+        0.4699,
+        0.316,
+        1
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0.6358,
+        0.6358,
+        0.6358,
+        1
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0.9643,
+        0.5094,
+        0.3553,
+        1
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0.6824,
+        0.6824,
+        0.698,
+        1
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0.949,
+        0.949,
+        0.9686,
+        1
+      ],
+      "count": 3
+    },
+    {
+      "rgba": [
+        0.4353,
+        0.4431,
+        0.4745,
+        1
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        0.8374,
+        0.8374,
+        0.8374,
+        1
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        1.0007,
+        0.6304,
+        0.2215,
+        1
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        0,
+        0.5333,
+        1,
+        1
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        0.4706,
+        0.4706,
+        0.502,
+        0.16
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        0.1887,
+        0.1887,
+        0.1887,
+        1
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        0.7725,
+        0.7725,
+        0.7725,
+        1
+      ],
+      "count": 2
+    },
+    {
+      "rgba": [
+        0.5569,
+        0.5569,
+        0.5765,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        1,
+        0.2196,
+        0.2353,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0,
+        0,
+        0,
+        0.3
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9922,
+        0.5608,
+        0.1725,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9451,
+        0.4235,
+        0.2863,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.6027,
+        0.6027,
+        0.6027,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.7227,
+        0.7298,
+        0.7298,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.1882,
+        0.1882,
+        0.1882,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.898,
+        0.898,
+        0.9176,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.3098,
+        0.3098,
+        0.3098,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.8196,
+        0.8196,
+        0.8392,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        1.0057,
+        0.4862,
+        -0.0262,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.7804,
+        0.7804,
+        0.8,
+        0
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9459,
+        0.9458,
+        0.9458,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9214,
+        0.9206,
+        0.9458,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.7556,
+        0.7556,
+        0.7556,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.7648,
+        0.7648,
+        0.7648,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.5296,
+        0.5296,
+        0.5296,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9804,
+        0.4822,
+        0.135,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        1,
+        0.5647,
+        0.1725,
+        0.2
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9961,
+        0.8431,
+        0.702,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.2353,
+        0.2353,
+        0.2627,
+        0.298
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.9686,
+        0.9686,
+        0.9686,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.5,
+        0.5,
+        0.5,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.2,
+        0.2,
+        0.2,
+        1
+      ],
+      "count": 1
+    },
+    {
+      "rgba": [
+        0.8745,
+        0.4275,
+        0.4275,
+        1
+      ],
+      "count": 1
+    }
+  ],
+  "player_settings": {
+    "topInset": 16,
+    "bottomInset": 0,
+    "rowSpacing": 0,
+    "rows": [
+      {
+        "key": "speedSlider",
+        "type": "speedSlider",
+        "height": 65
+      },
+      {
+        "key": "autoStop",
+        "type": "button",
+        "title": "定时关闭",
+        "height": 52,
+        "action": "autoStopButtonAction:"
+      },
+      {
+        "key": "displaySpeedSlider",
+        "type": "switch",
+        "title": "显示速度控制条",
+        "height": 52,
+        "action": "dispalySpeedSliderSwitchAction:"
+      },
+      {
+        "key": "waveInfoView",
+        "type": "switch",
+        "title": "波形图",
+        "height": 52,
+        "action": "waveInfoViewSwitchAction:"
+      },
+      {
+        "key": "fileRepeatCount",
+        "type": "stepper",
+        "title": "每个文件重复次数",
+        "height": 52,
+        "action": "fileRepeatStepperAction:"
+      },
+      {
+        "key": "ffRewTime",
+        "type": "stepper",
+        "title": "++/-- 时间:",
+        "height": 52,
+        "action": "ffRewTimeStepperAction:"
+      },
+      {
+        "key": "ffRewAutoFast",
+        "type": "stepper",
+        "title": "快进/快退速度:",
+        "height": 52,
+        "action": "ffRewAutoFastTimeStepperAction:"
+      },
+      {
+        "key": "slideChangeTime",
+        "type": "stepper",
+        "title": "滑动快进快退时间",
+        "height": 52,
+        "action": "slideChangeTimeStepperAction:"
+      },
+      {
+        "key": "volume",
+        "type": "stepper",
+        "title": "音量增益",
+        "height": 52,
+        "action": "volumStepperAction:"
+      },
+      {
+        "key": "devideTime",
+        "type": "stepper",
+        "title": "自动分句最短语句时间",
+        "height": 52,
+        "action": "devideTimeStepperAction:"
+      },
+      {
+        "key": "lrcTimeOffset",
+        "type": "stepper",
+        "title": "字幕时间偏移",
+        "height": 52,
+        "action": "LRCTimeOffsetStepperAction:"
+      },
+      {
+        "key": "earTurn",
+        "type": "switch",
+        "title": "录音耳返",
+        "height": 52,
+        "action": "earTurnSwitchValueChangedEvent:"
+      },
+      {
+        "key": "show_ab_flow_reading",
+        "type": "switch",
+        "title": "显示AB跟读",
+        "height": 52,
+        "action": "ABFlowReadingSwitchAction:"
+      },
+      {
+        "key": "show_ab_time",
+        "type": "switch",
+        "title": "显示AB时间",
+        "height": 52,
+        "action": "ABTimeShowingToggleSwitchAction:"
+      },
+      {
+        "key": "subtitleMask",
+        "type": "switch",
+        "title": "视频字幕遮罩",
+        "height": 52,
+        "action": "subtitleMaskSwitchAction:"
+      },
+      {
+        "key": "waveViewHeight",
+        "type": "stepper",
+        "title": "波形图高度",
+        "height": 52,
+        "storageKey": "PLAYER_WAVE_VIEW_HEIGHT",
+        "action": "defaultIntegerSteperAction:",
+        "stepperMin": 45,
+        "stepperMax": 200,
+        "stepperStep": 2
+      }
+    ]
+  },
+  "packaged_subtitle_example": {
+    "path": "Introduction.txt",
+    "format": "JSON array",
+    "count": 23,
+    "keys": [
+      "ATime",
+      "BTime",
+      "content",
+      "favor",
+      "indexNum",
+      "itemID",
+      "translation"
+    ],
+    "first_start_seconds": 0.5972789525985718,
+    "last_end_seconds": 84.8564224243164
+  },
+  "settings_database": {
+    "path": "settings.sqlite",
+    "schema": [
+      {
+        "name": "Settings",
+        "sql": "CREATE TABLE \"Settings\" (\n\t \"SettingName\" TEXT NOT NULL,\n\t \"SettingString\" TEXT,\n\t \"SettingData\" real,\n\t \"SettingValue\" integer\n)"
+      },
+      {
+        "name": "sqlite_sequence",
+        "sql": "CREATE TABLE sqlite_sequence(name,seq)"
+      }
+    ],
+    "settings_row_count": 0
+  },
+  "model_bundle_names": [
+    "ASRwav2vec2.mlmodelc",
+    "FluencyGBDT.mlmodelc",
+    "FusionGBDT.mlmodelc",
+    "G2PEncoder.mlmodelc",
+    "IntonationCNN.mlmodelc",
+    "LSTMasr.mlmodelc",
+    "PronunciationMLP.mlmodelc",
+    "RhythmGBDT.mlmodelc",
+    "SileroVAD.mlmodelc",
+    "StressCNN.mlmodelc"
+  ],
+  "limitations": [
+    "Static package and recognized archive fields only; original application has not been executed.",
+    "Mach-O cryptid=1 declares encrypted code. This is not recovered original source or proven native handler behavior.",
+    "Nib text/action/outlet/class presence does not prove runtime visibility, successful operations, complete geometry, or implementation.",
+    "The remainder nib files were byte-identical copies preserving relative paths; original provenance is ui-remainder-provenance.json.",
+    "CoreML bundle names establish packaged assets, not the algorithms, call flows, input contracts, availability, or scoring accuracy.",
+    "Cloud, purchases, speech services and sharing have no runtime/network verification."
+  ]
+}
