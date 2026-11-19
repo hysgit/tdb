@@ -49,7 +49,7 @@ workflows:
     triggering:
       events: [push]
       branch_patterns:
-        - pattern: tdb
+        - pattern: main
           include: true
           source: true
     environment:
