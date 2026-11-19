@@ -32,4 +32,5 @@
 - 当前浏览器控制的运行环境在初始化时失败：`windows sandbox failed: helper_unknown_error: setup refresh had errors`。两次 CUA 初始化及一次独立桌面控制初始化均失败，尚未进入网页操作。
 - 用户已明确指定并授权独立仓库 `https://github.com/hysgit/tdb.git`。远程检查未发现已有引用，本工程使用 `main` 分支；不再使用高效Todo仓库的独立分支。
 - GitHub macOS 云构建已实际触发，运行地址为 `https://github.com/hysgit/tdb/actions/runs/44521241265`，触发提交 `14422cb5b3d9f6a82ae624ed540e07774e9cf3e5`。目前仍需跟进结果。
+- 初次原生编译失败已通过诊断构建定位：镜像默认 Xcode 16.4 的 AVFoundation SDK 不识别 `video_player_avfoundation 2.12.4` 使用的 `isolation` 参数。工作流已选择官方镜像中实际安装的 Xcode 26.3，修复结果需以随后云构建为准。
 - Apple App 记录、签名配置和 TestFlight 分发尚未在本次会话确认完成，不能据此文档声称已上传。
