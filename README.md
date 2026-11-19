@@ -29,6 +29,8 @@ $env:ANDROID_HOME='D:\Android\Sdk'
 
 Android 调试包生成到 `build/app/outputs/flutter-apk/app-debug.apk`。iOS 部署目标为 15.0，云构建见 [发布说明](docs/cloud-release.md)。
 
+iOS Release 已在 macOS 云端编译通过：[成功构建](https://github.com/hysgit/tdb/actions/runs/44524879211)。产物尚未签名；TestFlight 仍待完成 Apple 签名和分发配置。
+
 ## 还原依据与边界
 
 [静态分析报告](docs/2026-11-19_逆向-听读宝-report.md)记录 IPA SHA-256、界面及配置证据和覆盖范围。原版主程序有 App Store 加密标记 `cryptid=1`；此工程是独立重建，不是恢复原始源码。

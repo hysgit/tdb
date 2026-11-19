@@ -31,6 +31,6 @@
 - 工作流已写入并复用已核对的 Flutter / Xcode / CocoaPods 配置。
 - 当前浏览器控制的运行环境在初始化时失败：`windows sandbox failed: helper_unknown_error: setup refresh had errors`。两次 CUA 初始化及一次独立桌面控制初始化均失败，尚未进入网页操作。
 - 用户已明确指定并授权独立仓库 `https://github.com/hysgit/tdb.git`。远程检查未发现已有引用，本工程使用 `main` 分支；不再使用高效Todo仓库的独立分支。
-- GitHub macOS 云构建已实际触发，运行地址为 `https://github.com/hysgit/tdb/actions/runs/44521241265`，触发提交 `14422cb5b3d9f6a82ae624ed540e07774e9cf3e5`。目前仍需跟进结果。
-- 初次原生编译失败已通过诊断构建定位：镜像默认 Xcode 16.4 的 AVFoundation SDK 不识别 `video_player_avfoundation 2.12.4` 使用的 `isolation` 参数。工作流已选择官方镜像中实际安装的 Xcode 26.3，修复结果需以随后云构建为准。
+- GitHub macOS 云构建已成功：`https://github.com/hysgit/tdb/actions/runs/44524879211`，编译提交 `6180c773dc4626332df55ea92eedfb35bf923f18`。检查、测试、iOS Release 原生编译和未签名产物保存全部成功。
+- 初次原生编译错误来自镜像默认 Xcode 16.4 的 AVFoundation SDK 不识别视频插件使用的 `isolation` 参数；显式选择官方镜像已安装的 Xcode 26.3 后编译通过。具体产物身份见 [验证记录](verification.md)。
 - Apple App 记录、签名配置和 TestFlight 分发尚未在本次会话确认完成，不能据此文档声称已上传。

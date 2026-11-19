@@ -22,4 +22,13 @@
 
 Android 模拟器当前 `-accel-check` 报硬件加速不可用；软件模式尝试后 adb 仍为 offline。未能安装运行本次 APK，不能宣称 Android 真机或模拟器端到端通过。测试中的播放器使用替身，录音权限、音视频硬件解码、后台播放和系统音频中断仍需手机验收。
 
-Windows 未构建 iOS IPA。已配置 Codemagic iOS 工作流，但当前浏览器控制进程初始化失败；TestFlight 尚未上传或分发。详见 [云发布说明](cloud-release.md)。
+Windows 未构建 iOS IPA。随后在 GitHub 的 macOS 云端完成 iOS Release 原生编译，详见下节。当前浏览器控制进程初始化失败；TestFlight 尚未上传或分发。详见 [云发布说明](cloud-release.md)。
+
+## iOS 云端编译成功
+
+- 运行：<https://github.com/hysgit/tdb/actions/runs/44524879211>，结果 `success`。
+- 编译提交：`6180c773dc4626332df55ea92eedfb35bf923f18`。
+- 环境：macOS 15、Xcode 26.3、Flutter 3.50.0。镜像默认 Xcode 16.4 与视频插件新版 AVFoundation API 不兼容，已通过显式选择 26.3 修复。
+- 云端依赖解析、`flutter analyze`、`flutter test`、`flutter build ios --release --no-codesign` 及产物保存全部成功。
+- 产物：`Tdb-iOS-unsigned-3`，GitHub artifact ID `14530095330`，13,331,311 字节；SHA-256：`58def59d4df070b2fad4697886a30eaa6554ac85de7340fe96a4c81f46455711`。
+- 该产物为未签名 `.app` 的压缩包，证明 iOS 原生编译通过，不能作为 TestFlight 安装包。真机运行、签名、Apple 处理和分发仍未验证。
