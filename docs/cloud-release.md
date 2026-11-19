@@ -34,5 +34,8 @@
 - GitHub macOS 云构建已成功：`https://github.com/hysgit/tdb/actions/runs/44524879211`，编译提交 `6180c773dc4626332df55ea92eedfb35bf923f18`。检查、测试、iOS Release 原生编译和未签名产物保存全部成功。
 - 初次原生编译错误来自镜像默认 Xcode 16.4 的 AVFoundation SDK 不识别视频插件使用的 `isolation` 参数；显式选择官方镜像已安装的 Xcode 26.3 后编译通过。具体产物身份见 [验证记录](verification.md)。
 - Apple App 记录已创建：App ID `6836784026`；专用 profile `tdb-appstore` 已导入并匹配现有分发证书；`Tdb 内测` 已加入 1 名经用户授权的内部测试者，未启用未来构建自动分发。
-- Codemagic App ID `6afef749aec4811f2d5c1021`；[签名构建 1](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6afefe358f52ca275128e2d1) 使用提交 `2c5de7f`，已生成 `tingdubao.ipa [26.35 MB]`，最后观察状态为 `publishing`。
-- 归档下载超时后，浏览器控制连接持续报 `Debugger unattached`。Apple 上传完成、处理完成和最终内测分发仍未核验，不能据此文档声称已发布。
+- [签名构建 1](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6afefe358f52ca275128e2d1) 上传成功，但后处理在 16 分钟内未找到对应构建，未完成分发；未取得 Apple 邮件中的具体处理错误码。
+- 发现 file_picker 10.3.10 的 SwiftPM 配置默认编入相册及音乐库模块。Tdb 仅使用系统文档选择器，因此项目切换为 CocoaPods，并通过 `Pod::PICKER_MEDIA = false`、`Pod::PICKER_AUDIO = false` 移除未使用模块；未新增相册或音乐库用途权限。
+- 修复提交 `67c91705e63104d6c56c963a553bb4c926fe4438` 已通过 [GitHub iOS 编译及测试](https://github.com/hysgit/tdb/actions/runs/44557270532)。
+- [Codemagic 签名构建 2](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6aff190f8f52ca275128eeb7) 状态为 `finished`，检查、测试、签名、上传及 Apple 后处理全部成功；产物显示为 `tingdubao.ipa [25.22 MB]`。
+- **TestFlight 已发布并核验**：版本 `1.0.0（2）`，状态 `Testing`；“Tdb 内测”组内 1 名测试者、1 个构建，目标账号状态 `Invited`。Apple build ID 为 `fdbc70c9-d9b6-4459-94d9-a5691e6416d7`。真机安装和运行验收由受邀账号完成。

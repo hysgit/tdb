@@ -22,7 +22,7 @@
 
 Android 模拟器当前 `-accel-check` 报硬件加速不可用；软件模式尝试后 adb 仍为 offline。未能安装运行本次 APK，不能宣称 Android 真机或模拟器端到端通过。测试中的播放器使用替身，录音权限、音视频硬件解码、后台播放和系统音频中断仍需手机验收。
 
-Windows 未构建 iOS IPA。随后 GitHub 完成未签名原生编译，Codemagic 完成签名 IPA 归档并进入上传阶段，详见下文。Apple 上传完成与 TestFlight 可安装状态仍未核验。详见 [云发布说明](cloud-release.md)。
+Windows 未构建 iOS IPA。随后 GitHub 完成未签名原生编译，Codemagic 完成签名、上传和 Apple 后处理；TestFlight 分发已核验，详见下文。尚未在受邀手机实际安装运行，不能将分发成功等同于真机功能验收。
 
 ## iOS 云端编译成功
 
@@ -33,12 +33,23 @@ Windows 未构建 iOS IPA。随后 GitHub 完成未签名原生编译，Codemagi
 - 产物：`Tdb-iOS-unsigned-3`，GitHub artifact ID `14530095330`，13,331,311 字节；SHA-256：`58def59d4df070b2fad4697886a30eaa6554ac85de7340fe96a4c81f46455711`。
 - 该产物为未签名 `.app` 的压缩包，证明 iOS 原生编译通过，不能作为 TestFlight 安装包。真机运行、签名、Apple 处理和分发仍未验证。
 
-## App Store 签名构建
+## 首次 App Store 签名构建（未分发）
 
 - Apple App 记录已建立：`Tdb`，App ID `6836784026`，Bundle ID `com.hysgit.tdb`。
 - 复用现有分发证书，创建并导入专用 App Store profile `tdb-appstore`，Codemagic 页面确认与已保存证书匹配。
 - 经用户明确授权，既有 Developer 测试账号仅追加 Tdb 应用访问权限并加入 `Tdb 内测`；页面确认组内 1 名测试者。自动分发未来所有构建未启用。
 - [Codemagic 构建 1](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6afefe358f52ca275128e2d1)，源码提交 `2c5de7f`，工作流 `Tdb iOS TestFlight`。
-- 最后读取的状态为 `publishing`。签名身份安装、依赖、检查与测试、签名配置及 IPA 归档已完成；可见产物 `tingdubao.ipa [26.35 MB]`。
+- 最终状态为 `finished with post-processing failed`。签名、检查与测试、归档及上传已完成；可见产物 `tingdubao.ipa [26.35 MB]`。
 - 归档下载时控制连接超时；随后浏览器读操作持续报 `Debugger unattached`。未取得本地签名 IPA，不记录未核实的文件哈希。
-- Apple 上传完成、处理完成和组内构建可安装尚未核验。此处不能作为 TestFlight 已发布的证据。相关进度保存在本机忽略目录 `dist/testflight-release-progress.json`。
+- 上传日志确认 `UPLOAD SUCCEEDED with no errors, 1 warning`；警告为未来 SDK 要求。后处理 16 分 15 秒内未找到对应构建，具体 Apple 处理错误未取得。本次未分发。
+
+## TestFlight 成功分发
+
+- 源码提交：`67c91705e63104d6c56c963a553bb4c926fe4438`。通过项目级 CocoaPods 配置，仅编入实际使用的文档选择模块，关闭未使用的相册和音乐库模块。
+- [GitHub 修复版验证](https://github.com/hysgit/tdb/actions/runs/44557270532)：检查、50 项测试和 iOS Release 编译全部成功。
+- [Codemagic 构建 2](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6aff190f8f52ca275128eeb7)：`finished`；检查与测试 45 秒、IPA 归档 1 分 23 秒、上传 1 分 26 秒，Apple 后处理 3 分 44 秒。
+- 签名产物：`tingdubao.ipa [25.22 MB]`。未下载到本地，不填报未核实的文件哈希。
+- App Store Connect 页面确认：`Tdb 内测`，`Internal Group ∙ 1 Tester ∙ 1 Build`，`Build 1.0.0 (2)`，状态 `Testing`，有效期 90 天。Apple build ID：`fdbc70c9-d9b6-4459-94d9-a5691e6416d7`。
+- 目标测试者状态 `Invited`；仅增加经用户批准的 Tdb Developer 应用访问权限，未新增管理员、证书或 API Key 权限。
+- 本地凭证：`dist/Tdb-TestFlight-1.0.0-2.jpg`；本地进度：`dist/testflight-release-progress.json`。测试者地址和账号权限截图不提交仓库。
+- 真机实际安装、录音权限和媒体播放仍待受邀账号验收。
