@@ -22,7 +22,7 @@
 
 Android 模拟器当前 `-accel-check` 报硬件加速不可用；软件模式尝试后 adb 仍为 offline。未能安装运行本次 APK，不能宣称 Android 真机或模拟器端到端通过。测试中的播放器使用替身，录音权限、音视频硬件解码、后台播放和系统音频中断仍需手机验收。
 
-Windows 未构建 iOS IPA。随后在 GitHub 的 macOS 云端完成 iOS Release 原生编译，详见下节。当前浏览器控制进程初始化失败；TestFlight 尚未上传或分发。详见 [云发布说明](cloud-release.md)。
+Windows 未构建 iOS IPA。随后 GitHub 完成未签名原生编译，Codemagic 完成签名 IPA 归档并进入上传阶段，详见下文。Apple 上传完成与 TestFlight 可安装状态仍未核验。详见 [云发布说明](cloud-release.md)。
 
 ## iOS 云端编译成功
 
@@ -32,3 +32,13 @@ Windows 未构建 iOS IPA。随后在 GitHub 的 macOS 云端完成 iOS Release 
 - 云端依赖解析、`flutter analyze`、`flutter test`、`flutter build ios --release --no-codesign` 及产物保存全部成功。
 - 产物：`Tdb-iOS-unsigned-3`，GitHub artifact ID `14530095330`，13,331,311 字节；SHA-256：`58def59d4df070b2fad4697886a30eaa6554ac85de7340fe96a4c81f46455711`。
 - 该产物为未签名 `.app` 的压缩包，证明 iOS 原生编译通过，不能作为 TestFlight 安装包。真机运行、签名、Apple 处理和分发仍未验证。
+
+## App Store 签名构建
+
+- Apple App 记录已建立：`Tdb`，App ID `6836784026`，Bundle ID `com.hysgit.tdb`。
+- 复用现有分发证书，创建并导入专用 App Store profile `tdb-appstore`，Codemagic 页面确认与已保存证书匹配。
+- 经用户明确授权，既有 Developer 测试账号仅追加 Tdb 应用访问权限并加入 `Tdb 内测`；页面确认组内 1 名测试者。自动分发未来所有构建未启用。
+- [Codemagic 构建 1](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6afefe358f52ca275128e2d1)，源码提交 `2c5de7f`，工作流 `Tdb iOS TestFlight`。
+- 最后读取的状态为 `publishing`。签名身份安装、依赖、检查与测试、签名配置及 IPA 归档已完成；可见产物 `tingdubao.ipa [26.35 MB]`。
+- 归档下载时控制连接超时；随后浏览器读操作持续报 `Debugger unattached`。未取得本地签名 IPA，不记录未核实的文件哈希。
+- Apple 上传完成、处理完成和组内构建可安装尚未核验。此处不能作为 TestFlight 已发布的证据。相关进度保存在本机忽略目录 `dist/testflight-release-progress.json`。

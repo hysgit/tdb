@@ -29,7 +29,7 @@ $env:ANDROID_HOME='D:\Android\Sdk'
 
 Android 调试包生成到 `build/app/outputs/flutter-apk/app-debug.apk`。iOS 部署目标为 15.0，云构建见 [发布说明](docs/cloud-release.md)。
 
-iOS Release 已在 macOS 云端编译通过：[成功构建](https://github.com/hysgit/tdb/actions/runs/44524879211)。产物尚未签名；TestFlight 仍待完成 Apple 签名和分发配置。
+iOS Release 已在 macOS 云端编译通过：[成功构建](https://github.com/hysgit/tdb/actions/runs/44524879211)。随后 [Codemagic 签名构建](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6afefe358f52ca275128e2d1) 已生成 App Store 签名 IPA 并进入上传阶段；Apple 最终处理和 TestFlight 分发结果仍待核验。
 
 ## 还原依据与边界
 
