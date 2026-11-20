@@ -176,8 +176,9 @@ class WifiTransfer {
         return false;
       }
       final ip = InternetAddress.tryParse(entry.address);
-      if (ip == null || ip.type != InternetAddressType.IPv4 || ip.isLoopback)
+      if (ip == null || ip.type != InternetAddressType.IPv4 || ip.isLoopback) {
         return false;
+      }
       if (!_isLocal(ip) || ip.rawAddress[0] == 169) return false;
       return !isIOS || name == 'en0' || name == 'ap1' || name == 'bridge100';
     }).toList();

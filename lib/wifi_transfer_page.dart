@@ -44,10 +44,11 @@ class WifiTransferPage extends StatelessWidget {
           InkWell(
             onTap: () async {
               await Clipboard.setData(ClipboardData(text: url));
-              if (context.mounted)
+              if (context.mounted) {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(const SnackBar(content: Text('地址已复制')));
+              }
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
