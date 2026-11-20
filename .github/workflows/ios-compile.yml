@@ -10,6 +10,8 @@ on:
       - 'test/**'
       - 'integration_test/**'
       - 'scripts/run_ios_transfer_probe.py'
+      - 'scripts/run_ios_audio_probe.py'
+      - 'scripts/ios_probe_diagnostics.py'
       - 'assets/**'
       - 'pubspec.*'
   workflow_dispatch:
@@ -64,6 +66,38 @@ jobs:
         with:
           name: Tdb-iOS-unsigned-${{ github.run_number }}
           path: build/ios/Tdb-unsigned.zip
+          retention-days: 7
+
+  ios-audio:
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - name: Check out Tdb
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - name: Resolve packages
+        run: flutter pub get
+      - name: Probe real iOS retimed AAC and MP3 export
+        run: |
+          set -e
+          xcodebuild -version
+          python3 scripts/run_ios_audio_probe.py --timeout 1200 --launch-timeout 180 --silence-timeout 180
+      - name: Save sanitized audio runtime diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Tdb-iOS-audio-${{ github.run_number }}
+          path: build/ios-audio-probe.log
+          if-no-files-found: ignore
           retention-days: 7
 
   ios-runtime:

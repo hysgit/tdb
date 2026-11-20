@@ -24,6 +24,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+from ios_probe_diagnostics import collect_diagnostics, sanitize_output
+
 
 class ProbeError(RuntimeError):
     pass
@@ -160,7 +162,7 @@ def run_probe(args: argparse.Namespace) -> None:
     if device['state'] != 'Booted':
         checked(['xcrun', 'simctl', 'boot', device['udid']], 60)
     checked(['xcrun', 'simctl', 'bootstatus', device['udid'], '-b'], 180)
-    command = [args.flutter, 'test', '--no-pub', '--reporter', 'expanded',
+    command = [args.flutter, 'test', '--verbose', '--no-pub', '--reporter', 'expanded',
                '--concurrency=1', '-d', device['udid'],
                'integration_test/transfer_waveform_test.dart']
     log_path = repository / args.log
@@ -181,6 +183,8 @@ def run_probe(args: argparse.Namespace) -> None:
     reader = threading.Thread(target=read_output, daemon=True)
     reader.start()
     deadline = time.monotonic() + args.timeout
+    last_output = time.monotonic()
+    started = time.time()
     recent = deque(maxlen=100)
     uploaded = False
     verified = False
@@ -190,6 +194,8 @@ def run_probe(args: argparse.Namespace) -> None:
             while not ended:
                 if time.monotonic() >= deadline:
                     raise ProbeError('Timed out waiting for the real iOS runtime probe.')
+                if time.monotonic() - last_output >= 180:
+                    raise ProbeError('Flutter produced no output for 180 seconds; inspect this simulator diagnostic log.')
                 try:
                     line = lines.get(timeout=1)
                 except queue.Empty:
@@ -199,8 +205,9 @@ def run_probe(args: argparse.Namespace) -> None:
                 if line is None:
                     ended = True
                     continue
+                last_output = time.monotonic()
                 plain = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', line)
-                clean = redact(plain)
+                clean = sanitize_output(redact(plain))
                 log.write(clean)
                 log.flush()
                 recent.append(clean)
@@ -224,8 +231,12 @@ def run_probe(args: argparse.Namespace) -> None:
                 raise ProbeError(f'iOS runtime probe failed (flutter exit={code}, uploaded={uploaded}, verified={verified}).')
         print('Verified simulator Darwin LAN HTTP, original-byte persistence, TransferWake channel, and native nonzero waveform.', flush=True)
         print('Physical iPhone and a separate PC on the same Wi-Fi remain unverified.', flush=True)
-    except Exception:
+    except (Exception, KeyboardInterrupt):
         print('Sanitized probe diagnostics:\n' + ''.join(recent), file=sys.stderr)
+        try:
+            collect_diagnostics(device['udid'], bundle_id, started, log_path)
+        except (OSError, subprocess.SubprocessError, ValueError) as error:
+            print('Read-only diagnostics unavailable: ' + type(error).__name__, file=sys.stderr)
         raise
     finally:
         try:
