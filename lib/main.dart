@@ -1,21 +1,27 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-
+import 'package:material_ui/material_ui.dart';
+import 'audio_tools_page.dart';
+import 'home_sections.dart';
+import 'import_page.dart';
 import 'library.dart';
+import 'library_state.dart';
 import 'models.dart';
 import 'player_view.dart';
+import 'recognition_workflow.dart';
+import 'recordings_page.dart';
+import 'services/device_tools.dart';
 import 'services/player.dart';
-import 'services/wifi_transfer.dart';
+import 'services/speech_recognition.dart';
 import 'services/transfer_wake.dart';
+import 'services/wifi_transfer.dart';
 import 'wifi_transfer_page.dart';
 
-const orange = Color(0xFFDC601D);
-const paper = Color(0xFFF7F7F9);
-
+const orange = Color(0xFFD68C42);
+const paper = Color(0xFFFCFDFC);
+final appMessenger = GlobalKey<ScaffoldMessengerState>();
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const TingdubaoApp());
@@ -26,6 +32,7 @@ class TingdubaoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Tdb',
+    scaffoldMessengerKey: appMessenger,
     debugShowCheckedModeBanner: false,
     locale: const Locale('zh', 'CN'),
     supportedLocales: const [Locale('zh', 'CN'), Locale('en')],
@@ -40,22 +47,16 @@ class TingdubaoApp extends StatelessWidget {
       appBarTheme: const AppBarTheme(
         backgroundColor: paper,
         surfaceTintColor: Colors.transparent,
-      ),
-      dividerTheme: const DividerThemeData(
-        color: Color(0xFFE8E8ED),
-        thickness: .7,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 17,
+          color: Colors.black,
+          fontWeight: FontWeight.w600,
         ),
       ),
-      navigationBarTheme: const NavigationBarThemeData(
-        backgroundColor: Colors.white,
-        indicatorColor: Color(0xFFFFE8DA),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFFE8EBE9),
+        thickness: .6,
       ),
       useMaterial3: true,
     ),
@@ -64,101 +65,113 @@ class TingdubaoApp extends StatelessWidget {
 }
 
 class StudyHome extends StatefulWidget {
-  const StudyHome({super.key});
+  const StudyHome({super.key, this.initialLibrary, this.studyPlayer});
+  final LibraryState? initialLibrary;
+  final StudyPlayer? studyPlayer;
   @override
   State<StudyHome> createState() => _StudyHomeState();
 }
 
 class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
-  final player = StudyPlayer();
+  late final StudyPlayer player = widget.studyPlayer ?? StudyPlayer();
+  final speech = SpeechRecognitionService();
+  final tools = DeviceTools();
   final transfer = WifiTransfer();
-  final query = TextEditingController();
-  final scaffoldKey = GlobalKey<ScaffoldMessengerState>();
-  LibraryRepository? repository;
-  List<MediaItem> items = [];
-  Set<String> folders = {};
+  final recordingsKey = GlobalKey<RecordingsPageState>();
+  final playerKey = GlobalKey<PlayerViewState>();
+  LibraryState? library;
   String? folder, initError;
-  bool booting = true, importing = false, reverseSort = false;
-  bool _wifiOpening = false;
   int page = 0;
+  bool booting = true, importing = false, editing = false;
+  bool _wifiOpening = false, _playerOpening = false, _playerVisible = false;
+  final selected = <String>{};
+  final _deletingIds = <String>{};
   Timer? autosave;
-
+  final _studyClock = Stopwatch();
+  int _accountedMs = 0, _remainderMs = 0;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    player.addListener(_accountStudy);
+    if (tools.supported) tools.setActionHandler(_deviceAction);
     unawaited(initialize());
     autosave = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (!booting && initError == null) {
-        unawaited(guard(save));
-      }
+      if (!booting && initError == null) unawaited(guard(save));
     });
   }
 
   Future<void> initialize() async {
     try {
-      repository ??= await LibraryRepository.open();
-      final data = await repository!.read();
-      if (data != null) {
-        items = (data['items'] as List)
-            .map((i) => MediaItem.fromJson(Map<String, dynamic>.from(i as Map)))
-            .toList();
-        folders = Set<String>.from(data['folders'] as List? ?? []);
-        player.speed = (data['speed'] as num? ?? 1).toDouble().clamp(.1, 3);
-      } else {
-        final cues = parseSubtitles(
-          await rootBundle.loadString('assets/demo/Introduction.json'),
-          format: 'json',
-        );
-        items = [
-          MediaItem(
-            id: 'introduction',
-            name: 'China · 听力练习',
-            path: await repository!.installAsset('Introduction.mp3'),
-            cues: cues,
-          ),
-          MediaItem(
-            id: 'video-introduction',
-            name: '视频教程',
-            path: await repository!.installAsset('VideoIntroduction.mp4'),
-          ),
-        ];
-        await repository!.write(snapshot());
+      library = widget.initialLibrary;
+      if (library == null) {
+        final repository = await LibraryRepository.open();
+        final state = LibraryState(repository);
+        final data = await repository.read();
+        if (data != null) {
+          state.restore(data);
+        } else {
+          state.items.add(
+            MediaItem(
+              id: 'introduction',
+              name: '听力练习.mp3',
+              path: await repository.installAsset('Introduction.mp3'),
+              cues: parseSubtitles(
+                await rootBundle.loadString('assets/demo/Introduction.json'),
+                format: 'json',
+              ),
+            ),
+          );
+          await state.save();
+        }
+        library = state;
       }
+      player.speed = library!.speed;
+      library!.addListener(_refresh);
       initError = null;
     } catch (e) {
       initError = '无法读取学习资料：$e';
     }
-    if (mounted) {
-      setState(() {
-        booting = false;
+    if (!mounted) return;
+    setState(() => booting = false);
+    if (initError == null && tools.supported) {
+      await guard(() async {
+        final pending = await tools.pendingAction();
+        if (pending != null) await _deviceAction(pending);
       });
     }
   }
 
-  Map<String, dynamic> snapshot() => {
-    'version': 1,
-    'items': items.map((i) => i.toJson()).toList(),
-    'folders': folders.toList(),
-    'speed': player.speed,
-  };
-  Future<void> save() async {
-    if (repository == null || initError != null) {
-      return;
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
+  void _accountStudy() {
+    final elapsed = _studyClock.elapsedMilliseconds;
+    _remainderMs += elapsed - _accountedMs;
+    _accountedMs = elapsed;
+    if (_remainderMs >= 1000 && library != null) {
+      library!.addStudy(_remainderMs ~/ 1000, DateTime.now());
+      _remainderMs %= 1000;
     }
-    try {
-      await repository!.write(snapshot());
-    } catch (e) {
-      throw FileSystemException('保存失败，请检查存储空间后重试：$e');
+    if (player.playing) {
+      _studyClock.start();
+    } else {
+      _studyClock.stop();
     }
   }
 
+  Future<void> save() async {
+    _accountStudy();
+    if (library == null || initError != null) return;
+    library!.speed = player.speed;
+    await library!.save();
+  }
+
   void message(String text) {
-    if (!mounted) {
-      return;
-    }
-    scaffoldKey.currentState?.hideCurrentSnackBar();
-    scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(text)));
+    if (!mounted) return;
+    appMessenger.currentState?.hideCurrentSnackBar();
+    appMessenger.currentState?.showSnackBar(SnackBar(content: Text(text)));
   }
 
   Future<void> guard(Future<void> Function() action) async {
@@ -181,42 +194,88 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     autosave?.cancel();
-    unawaited(guard(save));
+    player.removeListener(_accountStudy);
+    unawaited(save().catchError((Object _) {}));
+    library?.removeListener(_refresh);
+    tools.dispose();
     unawaited(transfer.dispose());
     player.dispose();
-    query.dispose();
     super.dispose();
   }
 
   Future<String?> input(String title, {String initial = ''}) async {
     final controller = TextEditingController(text: initial);
-    final result = await showDialog<String>(
+    final route = DialogRoute<String>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialog) => AlertDialog(
         title: Text(title),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: InputDecoration(labelText: title),
-        ),
+        content: TextField(controller: controller, autofocus: true),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialog),
             child: const Text('取消'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            onPressed: () => Navigator.pop(dialog, controller.text.trim()),
             child: const Text('保存'),
           ),
         ],
       ),
     );
-    await Future<void>.delayed(const Duration(milliseconds: 300));
+    final value = await Navigator.of(context).push(route);
+    await route.completed;
     controller.dispose();
-    return result;
+    return value;
+  }
+
+  Future<void> info(String title, String text) => showDialog<void>(
+    context: context,
+    builder: (dialog) => AlertDialog(
+      title: Text(title),
+      content: Text(text),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialog),
+          child: const Text('知道了'),
+        ),
+      ],
+    ),
+  );
+  Future<bool> confirm(String title, String text) async =>
+      await showDialog<bool>(
+        context: context,
+        builder: (dialog) => AlertDialog(
+          title: Text(title),
+          content: Text(text),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialog, false),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialog, true),
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+  Future<void> pushPage(String title, Widget body) async {
+    if (!mounted) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: Text(title)),
+          body: SafeArea(top: false, child: body),
+        ),
+      ),
+    );
+    _refresh();
   }
 
   Future<void> importMedia() async {
+    if (importing) return;
+    final destination = folder ?? '';
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
@@ -232,591 +291,69 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
         'mov',
         'm4v',
         'webm',
+        'srt',
+        'lrc',
+        'vtt',
+        'json',
+        'txt',
       ],
     );
-    if (result == null) {
-      return;
-    }
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      importing = true;
-    });
+    if (result == null || !mounted) return;
+    setState(() => importing = true);
+    var count = 0;
     try {
       for (final file in result.files) {
-        if (file.path == null) {
-          continue;
-        }
-        await receiveFile(file.path!, file.name);
+        if (file.path == null) continue;
+        await library!.importFile(file.path!, file.name, folder: destination);
+        count++;
       }
-      message('已导入 ${result.files.length} 个文件');
+      message('已导入 $count 个文件');
     } finally {
-      if (mounted) {
-        setState(() {
-          importing = false;
-        });
-      }
+      if (mounted) setState(() => importing = false);
     }
   }
 
-  Future<void> receiveFile(String source, String name) async {
-    final ext = name.split('.').last.toLowerCase();
-    if (['lrc', 'srt', 'vtt', 'txt', 'json'].contains(ext)) {
-      final item = player.item;
-      if (item == null) {
-        throw StateError('请先在手机中打开需要添加字幕的文件');
-      }
-      final cues = parseSubtitles(
-        await File(source).readAsString(),
-        format: ext,
-      );
-      if (cues.isEmpty) {
-        throw const FormatException('文件中没有有效字幕');
-      }
-      item.cues = cues;
-      item.favorites = {};
-      player.repeat.clear();
-    } else {
-      final path = await repository!.importFile(source, name);
-      items.add(
-        MediaItem(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          name: name,
-          path: path,
-          folder: folder ?? '',
-        ),
-      );
-    }
-    await save();
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Future<void> open(MediaItem item, {Cue? cue}) async {
-    if (player.loading) {
-      return;
-    }
-    await save();
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      page = 1;
-    });
-    await player.open(item);
-    if (cue != null) {
-      await player.seek(cue.start);
-      await player.play();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => ScaffoldMessenger(
-    key: scaffoldKey,
-    child: ListenableBuilder(
-      listenable: player,
-      builder: (context, _) => Scaffold(
-        appBar: AppBar(
-          title: Text(
-            ['Tdb', '播放', '收藏', '设置'][page],
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          actions: [
-            if (page == 0)
-              IconButton(
-                tooltip: '新建文件夹',
-                onPressed: booting
-                    ? null
-                    : () => guard(() async {
-                        final name = await input('文件夹名称');
-                        if (name != null && name.isNotEmpty && mounted) {
-                          setState(() {
-                            folders.add(name);
-                          });
-                          await save();
-                        }
-                      }),
-                icon: const Icon(Icons.create_new_folder_outlined),
-              ),
-            if (page == 0)
-              IconButton(
-                tooltip: '导入音频或视频',
-                onPressed: booting || importing
-                    ? null
-                    : () => guard(importMedia),
-                icon: const Icon(Icons.add),
-              ),
-          ],
-        ),
-        body: SafeArea(
-          top: false,
-          child: booting
-              ? const Center(child: CircularProgressIndicator())
-              : initError != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(initError!),
-                        const SizedBox(height: 16),
-                        FilledButton(
-                          onPressed: () => guard(initialize),
-                          child: const Text('重试'),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 900),
-                    child: IndexedStack(
-                      index: page,
-                      children: [
-                        libraryView,
-                        PlayerView(
-                          player: player,
-                          onSave: save,
-                          onMessage: message,
-                        ),
-                        favoritesView,
-                        settingsView,
-                      ],
-                    ),
-                  ),
-                ),
-        ),
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (page != 1 && player.item != null) miniPlayer,
-            NavigationBar(
-              selectedIndex: page,
-              onDestinationSelected: (value) => setState(() {
-                page = value;
-              }),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.folder_open_outlined),
-                  selectedIcon: Icon(Icons.folder),
-                  label: '文件',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.play_circle_outline),
-                  selectedIcon: Icon(Icons.play_circle),
-                  label: '播放',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.star_border_rounded),
-                  selectedIcon: Icon(Icons.star_rounded),
-                  label: '收藏',
-                ),
-                NavigationDestination(icon: Icon(Icons.tune), label: '设置'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-
-  Widget get libraryView {
-    final visible =
-        items
-            .where(
-              (i) =>
-                  (folder == null || i.folder == folder) &&
-                  i.name.toLowerCase().contains(query.text.toLowerCase()),
-            )
-            .toList()
-          ..sort(
-            (a, b) => reverseSort
-                ? b.name.compareTo(a.name)
-                : a.name.compareTo(b.name),
-          );
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: TextField(
-            controller: query,
-            onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(
-              hintText: '搜索音频、视频',
-              prefixIcon: Icon(Icons.search),
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 48,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ChoiceChip(
-                  label: const Text('全部文件'),
-                  selected: folder == null,
-                  onSelected: (_) => setState(() {
-                    folder = null;
-                  }),
-                ),
-              ),
-              for (final name in folders)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(name),
-                    selected: folder == name,
-                    onSelected: (_) => setState(() {
-                      folder = name;
-                    }),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 22, right: 10),
-          child: Row(
-            children: [
-              Text(
-                '${visible.length} 个文件',
-                style: const TextStyle(color: Colors.black54),
-              ),
-              const Spacer(),
-              TextButton.icon(
-                onPressed: () => setState(() {
-                  reverseSort = !reverseSort;
-                }),
-                icon: const Icon(Icons.sort_by_alpha, size: 18),
-                label: Text(reverseSort ? '名称降序' : '名称升序'),
-              ),
-            ],
-          ),
-        ),
-        if (importing) const LinearProgressIndicator(),
-        Expanded(
-          child: visible.isEmpty
-              ? empty(Icons.library_music_outlined, '还没有文件', '点击右上角 ＋ 导入音频或视频')
-              : ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: visible.length,
-                  separatorBuilder: (_, _) =>
-                      const Divider(height: 1, indent: 72),
-                  itemBuilder: (context, index) {
-                    final item = visible[index];
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
-                      ),
-                      leading: Container(
-                        width: 50,
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFE8D8),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          item.isVideo
-                              ? Icons.video_file_outlined
-                              : Icons.audio_file_outlined,
-                          color: orange,
-                        ),
-                      ),
-                      title: Text(
-                        item.name,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: Text(
-                        '${item.cues.isEmpty ? '无字幕' : '${item.cues.length} 句字幕'}  ·  ${item.positionMs == 0 ? '尚未播放' : '上次 ${formatTime(Duration(milliseconds: item.positionMs))}'}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      onTap: () => guard(() => open(item)),
-                      trailing: PopupMenuButton<String>(
-                        tooltip: '文件操作',
-                        onSelected: (value) =>
-                            guard(() => fileAction(item, value)),
-                        itemBuilder: (_) => const [
-                          PopupMenuItem(value: 'rename', child: Text('重命名')),
-                          PopupMenuItem(value: 'move', child: Text('移动到文件夹')),
-                          PopupMenuItem(value: 'delete', child: Text('删除')),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> fileAction(MediaItem item, String action) async {
-    if (action == 'rename') {
-      final name = await input('重命名', initial: item.name);
-      if (name != null && name.isNotEmpty && mounted) {
-        setState(() {
-          item.name = name;
-        });
-        await save();
-      }
-    } else if (action == 'move') {
-      final result = await showDialog<String>(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: const Text('移动到'),
-          children: [
-            for (final name in ['', ...folders])
-              SimpleDialogOption(
-                onPressed: () => Navigator.pop(context, name),
-                child: Text(name.isEmpty ? '根目录' : name),
-              ),
-          ],
-        ),
-      );
-      if (result != null && mounted) {
-        setState(() {
-          item.folder = result;
-        });
-        await save();
-      }
-    } else {
-      if (item == player.item) {
-        message('正在使用此文件，请先打开其他文件');
-        return;
-      }
-      final yes = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('删除文件？'),
-          content: Text('将删除“${item.name}”及其收藏和录音。导入前的原文件不受影响。'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('取消'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('删除'),
-            ),
-          ],
-        ),
-      );
-      if (yes == true && mounted) {
-        setState(() {
-          items.remove(item);
-        });
-        await save();
-        for (final path in [item.path, ...item.recordings]) {
-          if (File(path).absolute.path.startsWith(
-            '${repository!.root.absolute.path}${Platform.pathSeparator}',
-          )) {
-            final file = File(path);
-            if (await file.exists()) {
-              await file.delete();
-            }
+  Future<void> showImport() => pushPage(
+    '添加',
+    ImportPage(
+      onSelect: (source) => unawaited(
+        guard(() async {
+          switch (source) {
+            case ImportSource.wifi:
+              await showWifi();
+            case ImportSource.music:
+              await info(
+                'Apple Music',
+                '曲库导入尚未接入。无保护的音频可导出到“文件”后，通过 iCloud 导入。',
+              );
+            case ImportSource.album:
+              await info('相册导入', '先在“照片”中将视频存储到“文件”，然后选择该视频导入。');
+              if (mounted) await importMedia();
+            case ImportSource.icloud:
+            case ImportSource.onedrive:
+            case ImportSource.nas:
+            case ImportSource.itunes:
+              await importMedia();
           }
-        }
-      }
-    }
-  }
-
-  Widget get miniPlayer => Material(
-    color: Colors.white,
-    child: ListTile(
-      dense: true,
-      leading: const Icon(Icons.graphic_eq, color: orange),
-      title: Text(
-        player.item!.name,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        }),
       ),
-      subtitle: Text(
-        '${formatTime(player.position)} / ${formatTime(player.duration)}',
-      ),
-      onTap: () => setState(() {
-        page = 1;
-      }),
-      trailing: IconButton(
-        tooltip: player.playing ? '暂停' : '播放',
-        onPressed: () => guard(player.toggle),
-        icon: Icon(
-          player.playing ? Icons.pause_circle : Icons.play_circle,
-          color: orange,
-          size: 36,
+      onHelp: () => unawaited(
+        info(
+          '导入帮助',
+          'Wi-Fi：电脑与手机连接同一路由器，打开手机显示的地址上传。\n\n云盘或 NAS：在系统“文件”的“浏览”中启用对应位置，再选择资料。\n\niTunes：拷贝到 Tdb 共享目录后，从“我的 iPhone / Tdb”导入。\n\n同名字幕与音频放在同一文件夹时自动关联，已有字幕不会被覆盖。',
         ),
       ),
     ),
   );
-  Widget get favoritesView {
-    final favorites = [
-      for (final item in items)
-        for (final cue in item.cues)
-          if (item.favorites.contains(cue.id)) (item, cue),
-    ];
-    if (favorites.isEmpty) {
-      return empty(Icons.star_border_rounded, '把值得反复听的句子留下', '点击字幕旁的星标，随时回来复习');
-    }
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: favorites.length,
-      separatorBuilder: (_, _) => const Divider(),
-      itemBuilder: (_, index) {
-        final (item, cue) = favorites[index];
-        return ListTile(
-          title: Text(cue.text, style: const TextStyle(height: 1.5)),
-          subtitle: Text(
-            '${cue.translation}\n${item.name} · ${formatTime(cue.start)}',
-          ),
-          onTap: () => guard(() => open(item, cue: cue)),
-          trailing: IconButton(
-            tooltip: '取消收藏',
-            icon: const Icon(Icons.star_rounded, color: orange),
-            onPressed: () {
-              setState(() {
-                item.favorites = {...item.favorites}..remove(cue.id);
-              });
-              unawaited(guard(save));
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget get settingsView => ListView(
-    padding: const EdgeInsets.all(20),
-    children: [
-      const Padding(
-        padding: EdgeInsets.only(bottom: 16),
-        child: Text(
-          '听见，也读懂。',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
-        ),
-      ),
-      section('播放', [
-        ListTile(
-          title: const Text('默认播放速度'),
-          subtitle: Slider(
-            value: player.speed,
-            min: .1,
-            max: 3,
-            divisions: 58,
-            onChanged: (value) => guard(() => player.setSpeed(value)),
-            onChangeEnd: (_) => unawaited(guard(save)),
-          ),
-          trailing: Text('${player.speed.toStringAsFixed(2)}×'),
-        ),
-        ListTile(
-          title: const Text('播放音量'),
-          subtitle: Slider(
-            value: player.volume,
-            onChanged: (value) => guard(() => player.setVolume(value)),
-          ),
-        ),
-        ListTile(
-          title: const Text('定时关闭'),
-          subtitle: Text(
-            player.sleepAt == null
-                ? '未开启'
-                : '将在 ${player.sleepAt!.hour}:${player.sleepAt!.minute.toString().padLeft(2, '0')} 暂停',
-          ),
-          trailing: const Icon(Icons.timer_outlined),
-          onTap: showSleep,
-        ),
-      ]),
-      const SizedBox(height: 20),
-      section('学习资料', [
-        ListTile(
-          leading: const Icon(Icons.file_open_outlined),
-          title: const Text('导入音频或视频'),
-          onTap: () => guard(importMedia),
-        ),
-        ListTile(
-          leading: const Icon(Icons.wifi),
-          title: const Text('Wi-Fi 传文件'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => guard(showWifi),
-        ),
-        ListTile(
-          leading: const Icon(Icons.save_outlined),
-          title: const Text('立即保存学习进度'),
-          onTap: () => guard(() async {
-            await save();
-            message('学习进度已保存');
-          }),
-        ),
-      ]),
-      const SizedBox(height: 20),
-      section('关于', [
-        const ListTile(title: Text('Tdb'), subtitle: Text('1.0.0 · 本地听读与复读练习')),
-        ListTile(
-          title: const Text('功能与还原范围'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => showDialog<void>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('还原范围'),
-              content: const Text(
-                '根据听读宝 7.8 安装包资源重建。\n\n支持本地音视频、变速、AB 复读、字幕、收藏、听写和跟读录音。\n\n原程序经过 App Store 加密，无法从此包恢复完整源码。云盘、购买、语音评分、自动分句和翻译尚未重建。',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('知道了'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ]),
-    ],
-  );
-  void showSleep() {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const ListTile(
-              title: Text(
-                '定时关闭',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
-            for (final n in [0, 5, 10, 15, 30, 60])
-              ListTile(
-                title: Text(n == 0 ? '关闭定时' : '$n 分钟后暂停'),
-                onTap: () {
-                  player.setSleep(n == 0 ? null : Duration(minutes: n));
-                  Navigator.pop(context);
-                },
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> showWifi() async {
     if (_wifiOpening) return;
     _wifiOpening = true;
+    final destination = folder ?? '';
     try {
       await TransferWake.setActive(true);
-      final urls = await transfer.start(receiveFile);
+      final urls = await transfer.start(
+        (path, name) => library!.importFile(path, name, folder: destination),
+      );
       if (!mounted) return;
       await Navigator.of(context).push<void>(
         MaterialPageRoute(
@@ -828,56 +365,1035 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
       try {
         await transfer.stop();
       } finally {
-        await TransferWake.setActive(false);
-        _wifiOpening = false;
+        try {
+          await TransferWake.setActive(false);
+        } finally {
+          _wifiOpening = false;
+        }
       }
     }
   }
 
-  Widget section(String title, List<Widget> children) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(left: 4, bottom: 8),
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.black54,
-            fontWeight: FontWeight.w600,
+  Future<void> changeTab(int value) async {
+    if (page == value) return;
+    await recordingsKey.currentState?.finishRecording();
+    if (mounted) {
+      setState(() {
+        page = value;
+        editing = false;
+        selected.clear();
+      });
+    }
+  }
+
+  Future<void> open(MediaItem item, {Cue? cue, bool play = false}) async {
+    if (_deletingIds.contains(item.id)) throw StateError('此文件正在删除，请稍后重试');
+    if (_playerOpening) return;
+    _playerOpening = true;
+    try {
+      await recordingsKey.currentState?.finishRecording();
+      if (player.item != item) await player.open(item);
+      if (!mounted) return;
+      library!.opened(item);
+      await save();
+      if (cue != null) await player.seek(cue.start);
+      if (cue != null || play) await player.play();
+      if (_playerVisible || !mounted) return;
+      _playerVisible = true;
+      try {
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (routeContext) => StatefulBuilder(
+              builder: (context, update) => ListenableBuilder(
+                listenable: player,
+                builder: (_, _) => Scaffold(
+                  appBar: AppBar(
+                    title: Text(
+                      player.item?.name ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    actions: [
+                      IconButton(
+                        tooltip: '全曲循环',
+                        icon: Icon(
+                          Icons.repeat,
+                          color: player.repeat.enabled ? orange : null,
+                        ),
+                        onPressed: () => update(() {
+                          if (player.repeat.enabled) {
+                            player.repeat.clear();
+                          } else if (player.duration > Duration.zero) {
+                            player.repeat.setRange(
+                              Duration.zero,
+                              player.duration,
+                            );
+                          }
+                        }),
+                      ),
+                      IconButton(
+                        tooltip: '更多播放操作',
+                        icon: const Icon(Icons.more_horiz),
+                        onPressed: () => playerKey.currentState?.showMore(),
+                      ),
+                    ],
+                  ),
+                  body: SafeArea(
+                    top: false,
+                    child: PlayerView(
+                      key: playerKey,
+                      player: player,
+                      onSave: save,
+                      onMessage: message,
+                      onRecognize: (media, segment) =>
+                          recognizeMedia(routeContext, media, segment, speech),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
+        );
+      } finally {
+        _playerVisible = false;
+        await save();
+      }
+    } finally {
+      _playerOpening = false;
+      _refresh();
+    }
+  }
+
+  Future<void> _deviceAction(DeviceAction action) async {
+    if (booting || library == null) throw StateError('资料尚未读取完成');
+    switch (action.type) {
+      case DeviceActionType.pause:
+        await player.pause();
+      case DeviceActionType.upload:
+        // Native acknowledgement must not wait until this pushed page closes.
+        unawaited(guard(showWifi));
+      case DeviceActionType.play:
+        final media = action.mediaId == null
+            ? player.item ?? library!.items.firstOrNull
+            : library!.items.where((i) => i.id == action.mediaId).firstOrNull;
+        if (media == null) throw StateError('未找到要播放的文件');
+        if (_deletingIds.contains(media.id)) throw StateError('此文件正在删除');
+        await recordingsKey.currentState?.finishRecording();
+        if (player.item != media) await player.open(media);
+        if (player.error != null) throw StateError(player.error!);
+        library!.opened(media);
+        await player.play();
+        await save();
+    }
+  }
+
+  List<MediaItem> get visible =>
+      library!.items.where((i) => i.folder == (folder ?? '')).toList();
+  List<String> get childFolders =>
+      library!.folders
+          .where(
+            (f) =>
+                (f.contains('/') ? f.substring(0, f.lastIndexOf('/')) : '') ==
+                (folder ?? ''),
+          )
+          .toList()
+        ..sort();
+  @override
+  Widget build(BuildContext context) => ListenableBuilder(
+    listenable: player,
+    builder: (context, _) => PopScope(
+      canPop: folder == null || page != 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) backFolder();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: page == 0 && folder != null
+              ? IconButton(
+                  tooltip: '上一级',
+                  onPressed: backFolder,
+                  icon: const Icon(Icons.chevron_left),
+                )
+              : page == 0
+              ? IconButton(
+                  tooltip: '我的',
+                  onPressed: () => unawaited(guard(() => changeTab(4))),
+                  icon: const Icon(Icons.person, color: orange),
+                )
+              : null,
+          title: Text(
+            page == 0
+                ? folder?.split('/').last ?? '文件'
+                : ['文件', '录音', '更多', '听力', '我的'][page],
+          ),
+          actions: page == 0 && !booting && initError == null
+              ? [
+                  if (folder != null || editing)
+                    TextButton(
+                      onPressed: () => setState(() {
+                        editing = !editing;
+                        selected.clear();
+                      }),
+                      child: Text(editing ? '完成' : '编辑列表'),
+                    ),
+                  PopupMenuButton<String>(
+                    tooltip: '添加',
+                    icon: const Icon(Icons.add, color: orange),
+                    onSelected: (action) => unawaited(
+                      guard(() async {
+                        if (action == 'import') {
+                          await showImport();
+                        } else if (action == 'folder') {
+                          await addFolder();
+                        } else {
+                          setState(() => editing = true);
+                        }
+                      }),
+                    ),
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'import', child: Text('导入文件')),
+                      PopupMenuItem(value: 'folder', child: Text('新建文件夹')),
+                      PopupMenuItem(value: 'edit', child: Text('编辑列表')),
+                    ],
+                  ),
+                ]
+              : null,
         ),
+        body: booting
+            ? const Center(child: CircularProgressIndicator())
+            : initError != null
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(initError!),
+                    TextButton(
+                      onPressed: () => unawaited(initialize()),
+                      child: const Text('重试'),
+                    ),
+                  ],
+                ),
+              )
+            : homeBody,
+        bottomNavigationBar: booting || initError != null
+            ? null
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (editing && page == 0)
+                    batchBar
+            else if (player.item != null && (page == 0 || page == 3))
+                    miniPlayer,
+                  TdbBottomBar(
+                    index: page,
+                    onChanged: (value) =>
+                        unawaited(guard(() => changeTab(value))),
+                  ),
+                ],
+              ),
       ),
-      Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+    ),
+  );
+  Widget get homeBody => switch (page) {
+    0 => libraryView,
+    1 => RecordingsPage(
+      key: recordingsKey,
+      entries: [
+        for (final path in library!.standaloneRecordings)
+          (
+            path: path,
+            title:
+                '录音 ${File(path).parent.uri.pathSegments.where((s) => s.isNotEmpty).last}',
+          ),
+        for (final item in library!.items)
+          for (final path in item.recordings)
+            (path: path, title: '${item.name} · 跟读'),
+      ],
+      createPath: () async {
+        final directory = await library!.repository.root.createTemp(
+          'recording_',
+        );
+        return '${directory.path}/recording.m4a';
+      },
+      onSaved: library!.addRecording,
+      onDelete: library!.deleteRecording,
+      beforeRecording: player.pause,
+    ),
+    2 => TdbMorePage(
+      totalStudy: Duration(
+        seconds: library!.studySeconds.values.fold(0, (a, b) => a + b),
+      ),
+      todayStudy: Duration(
+        seconds:
+            library!.studySeconds[LibraryState.dateKey(DateTime.now())] ?? 0,
+      ),
+      reviewCount: library!.items.fold(0, (n, i) => n + i.favorites.length),
+      weekMinutes: [
+        for (var day = 6; day >= 0; day--)
+          (library!.studySeconds[LibraryState.dateKey(
+                    DateTime.now().subtract(Duration(days: day)),
+                  )] ??
+                  0) ~/
+              60,
+      ],
+      onAction: (action) => unawaited(guard(() => homeAction(action))),
+    ),
+    3 => hearingView,
+    _ => TdbMyPage(
+      onAction: (action) => unawaited(guard(() => homeAction(action))),
+      version: 'Tdb 1.1.0',
+      cacheLabel: '本地资料保留',
+    ),
+  };
+  Widget get libraryView {
+    final entries = visible;
+    return Column(
+      children: [
+        if (importing) const LinearProgressIndicator(),
+        Expanded(
+          child: editing
+              ? ReorderableListView.builder(
+                  buildDefaultDragHandles: false,
+                  itemCount: entries.length,
+                  onReorderItem: (from, to) => unawaited(
+                    guard(() async {
+                      final ids = entries.map((i) => i.id).toList();
+                      ids.insert(to, ids.removeAt(from));
+                      await library!.reorder(ids);
+                    }),
+                  ),
+                  itemBuilder: (_, n) => mediaTile(
+                    entries[n],
+                    key: ValueKey(entries[n].id),
+                    reorderIndex: n,
+                  ),
+                )
+              : ListView(
+                  children: [
+                    if (folder == null) ...[
+                      ListTile(
+                        leading: const Icon(
+                          Icons.podcasts,
+                          color: Colors.blue,
+                          size: 32,
+                        ),
+                        title: const Text('播客'),
+                        trailing: const Icon(Icons.chevron_right, size: 19),
+                        onTap: () => unawaited(
+                          guard(() => homeAction(HomeAction.podcasts)),
+                        ),
+                      ),
+                      const Divider(height: 1, indent: 65),
+                      ListTile(
+                        leading: const Icon(
+                          Icons.cloud,
+                          color: Colors.lightBlue,
+                          size: 32,
+                        ),
+                        title: const Text('iCloud'),
+                        trailing: const Icon(Icons.chevron_right, size: 19),
+                        onTap: () => unawaited(guard(importMedia)),
+                      ),
+                      const Divider(height: 1, indent: 65),
+                    ],
+                    for (final child in childFolders) ...[
+                      ListTile(
+                        leading: const Icon(
+                          Icons.folder_outlined,
+                          color: orange,
+                          size: 30,
+                        ),
+                        title: Text(child.split('/').last),
+                        trailing: Text(
+                          '${library!.items.where((i) => i.folder == child || i.folder.startsWith('$child/')).length} ›',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                        onTap: () => setState(() => folder = child),
+                        onLongPress: () =>
+                            unawaited(guard(() => folderActions(child))),
+                      ),
+                      const Divider(height: 1, indent: 65),
+                    ],
+                    for (final item in entries) ...[
+                      mediaTile(item),
+                      const Divider(height: 1, indent: 65),
+                    ],
+                    if (entries.isEmpty &&
+                        childFolders.isEmpty &&
+                        folder != null)
+                      const Padding(
+                        padding: EdgeInsets.all(40),
+                        child: Center(child: Text('此文件夹为空')),
+                      ),
+                    if (library!.sidecars.any(
+                      (s) => s['folder'] == (folder ?? ''),
+                    ))
+                      ListTile(
+                        leading: const Icon(Icons.subtitles_outlined),
+                        title: const Text('已导入字幕'),
+                        onTap: () => unawaited(showSidecars()),
+                      ),
+                  ],
+                ),
         ),
-        child: Column(children: children),
+      ],
+    );
+  }
+
+  Widget mediaTile(MediaItem item, {Key? key, int? reorderIndex}) => ListTile(
+    key: key,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+    leading: editing
+        ? Checkbox(
+            value: selected.contains(item.id),
+            onChanged: (_) => toggleSelection(item.id),
+          )
+        : Container(
+            width: 45,
+            height: 49,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F2F0),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Icon(
+              item.isVideo ? Icons.videocam_outlined : Icons.music_note,
+              size: 31,
+              color: const Color(0xFFBFC4C0),
+            ),
+          ),
+    title: Text(
+      item.name,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        fontSize: 15,
+        color: player.item == item ? orange : const Color(0xFF303530),
+      ),
+    ),
+    trailing: editing
+        ? ReorderableDragStartListener(
+            index: reorderIndex!,
+            child: const Padding(
+              padding: EdgeInsets.all(10),
+              child: Icon(Icons.drag_handle),
+            ),
+          )
+        : Text(
+            '${item.cues.length} ›',
+            style: const TextStyle(color: Colors.grey),
+          ),
+    onTap: () {
+      if (editing) {
+        toggleSelection(item.id);
+      } else {
+        unawaited(guard(() => open(item)));
+      }
+    },
+    onLongPress: editing
+        ? null
+        : () => unawaited(guard(() => fileActions(item))),
+  );
+  void toggleSelection(String id) => setState(() {
+    if (!selected.add(id)) selected.remove(id);
+  });
+  void backFolder() => setState(() {
+    if (folder != null) {
+      folder = folder!.contains('/')
+          ? folder!.substring(0, folder!.lastIndexOf('/'))
+          : null;
+    }
+    editing = false;
+    selected.clear();
+  });
+  Future<void> addFolder() async {
+    final name = await input('文件夹名称');
+    if (name == null || name.isEmpty) return;
+    if (name.contains('/') ||
+        name.contains('\\') ||
+        name == '.' ||
+        name == '..') {
+      throw const FormatException('文件夹名不能包含路径分隔符');
+    }
+    final path = folder == null ? name : '$folder/$name';
+    if (library!.folders.contains(path)) throw StateError('同名文件夹已存在');
+    library!.folders.add(path);
+    try {
+      await save();
+    } catch (_) {
+      library!.folders.remove(path);
+      rethrow;
+    }
+    _refresh();
+  }
+
+  Future<void> folderActions(String path) async {
+    final descendants =
+        library!.items.any(
+          (i) => i.folder == path || i.folder.startsWith('$path/'),
+        ) ||
+        library!.folders.any((f) => f.startsWith('$path/')) ||
+        library!.sidecars.any((s) => s['folder'] == path);
+    if (descendants) {
+      await info('文件夹', '移动或删除文件后，可长按删除空文件夹。');
+      return;
+    }
+    if (await confirm('删除空文件夹？', path.split('/').last)) {
+      library!.folders.remove(path);
+      try {
+        await save();
+      } catch (_) {
+        library!.folders.add(path);
+        rethrow;
+      }
+      _refresh();
+    }
+  }
+
+  Widget get batchBar => Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      TextButton(
+        onPressed: () => setState(() {
+          if (selected.length == visible.length) {
+            selected.clear();
+          } else {
+            selected.addAll(visible.map((i) => i.id));
+          }
+        }),
+        child: const Text('全选'),
+      ),
+      TextButton(
+        onPressed: selected.isEmpty
+            ? null
+            : () => unawaited(guard(() => moveFiles({...selected}))),
+        child: const Text('移动'),
+      ),
+      TextButton(
+        onPressed: selected.isEmpty
+            ? null
+            : () => unawaited(guard(() => deleteFiles({...selected}))),
+        child: Text('删除 (${selected.length})'),
       ),
     ],
   );
-  Widget empty(IconData icon, String title, String description) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+  Future<void> moveFiles(Set<String> ids) async {
+    final target = await showDialog<String>(
+      context: context,
+      builder: (dialog) => SimpleDialog(
+        title: const Text('移动到'),
         children: [
-          Icon(icon, size: 52, color: orange),
-          const SizedBox(height: 18),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+          for (final name in ['', ...library!.folders])
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(dialog, name),
+              child: Text(name.isEmpty ? '根目录' : name),
+            ),
+        ],
+      ),
+    );
+    if (target == null) return;
+    await library!.move(ids, target);
+    selected.clear();
+    _refresh();
+  }
+
+  Future<void> deleteFiles(Set<String> ids) async {
+    if (!await confirm('删除 ${ids.length} 个文件？', '将删除应用内的资料及跟读录音。原始导入文件不受影响。')) {
+      return;
+    }
+    _deletingIds.addAll(ids);
+    try {
+      await library!.delete(ids, activeIdProvider: () => player.item?.id);
+    } finally {
+      _deletingIds.removeAll(ids);
+    }
+    selected.clear();
+    _refresh();
+  }
+
+  Future<void> fileActions(MediaItem item) async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final entry in [
+              ('rename', '重命名'),
+              ('move', '移动到文件夹'),
+              ('delete', '删除'),
+            ])
+              ListTile(
+                title: Text(entry.$2),
+                onTap: () => Navigator.pop(sheet, entry.$1),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (result == 'rename') {
+      final name = await input('重命名', initial: item.name);
+      if (name != null && name.isNotEmpty) {
+        final old = item.name;
+        item.name = name;
+        try {
+          await save();
+        } catch (_) {
+          item.name = old;
+          rethrow;
+        }
+        _refresh();
+      }
+    } else if (result == 'move') {
+      await moveFiles({item.id});
+    } else if (result == 'delete') {
+      await deleteFiles({item.id});
+    }
+  }
+
+  Future<void> showSidecars() => pushPage(
+    '已导入字幕',
+    ListView(
+      children: [
+        for (final sidecar in library!.sidecars.where(
+          (s) => s['folder'] == (folder ?? ''),
+        ))
+          ListTile(
+            title: Text(sidecar['name']!),
+            subtitle: const Text('同名音频自动关联；已有字幕保留'),
           ),
-          const SizedBox(height: 8),
-          Text(
-            description,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.black54, height: 1.5),
+      ],
+    ),
+  );
+  Widget get miniPlayer => Material(
+    color: Colors.white,
+    child: SizedBox(
+      height: 57,
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          const Icon(Icons.music_note, size: 31, color: Color(0xFFBFC4C0)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: InkWell(
+              onTap: () => unawaited(guard(() => open(player.item!))),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    player.item!.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  Text(
+                    '${formatTime(player.position)} / ${formatTime(player.duration)}',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: '上一首',
+            onPressed: () => unawaited(guard(() => skip(-1))),
+            icon: const Icon(Icons.chevron_left, color: orange),
+          ),
+          IconButton(
+            tooltip: player.playing ? '暂停' : '播放',
+            onPressed: () => unawaited(guard(player.toggle)),
+            icon: Icon(
+              player.playing
+                  ? Icons.pause_circle_outline
+                  : Icons.play_circle_outline,
+              color: orange,
+            ),
+          ),
+          IconButton(
+            tooltip: '下一首',
+            onPressed: () => unawaited(guard(() => skip(1))),
+            icon: const Icon(Icons.chevron_right, color: orange),
+          ),
+          IconButton(
+            tooltip: '播放列表',
+            onPressed: () =>
+                unawaited(guard(() => homeAction(HomeAction.playlist))),
+            icon: const Icon(Icons.queue_music, color: orange),
           ),
         ],
       ),
     ),
+  );
+  Future<void> skip(int step) async {
+    final entries = library!.items
+        .where((i) => i.folder == player.item?.folder)
+        .toList();
+    final index = entries.indexOf(player.item!);
+    if (index < 0 || entries.isEmpty) return;
+    final target = entries[(index + step) % entries.length];
+    if (_deletingIds.contains(target.id)) throw StateError('此文件正在删除');
+    await player.open(target);
+    library!.opened(target);
+    await player.play();
+    await save();
+  }
+
+  Future<void> homeAction(HomeAction action) async {
+    switch (action) {
+      case HomeAction.importFiles:
+        await showImport();
+      case HomeAction.sync:
+        await info('同步音频', '设备间同步协议尚未接入。目前可使用 Wi-Fi 批量导入传送音频与字幕。');
+      case HomeAction.playlist:
+        await showMediaList('播放列表', library!.items, reorder: true);
+      case HomeAction.recent:
+        await showMediaList('最近播放', [
+          for (final id in library!.recent)
+            ...library!.items.where((i) => i.id == id),
+        ]);
+      case HomeAction.favorites:
+        await showCues('我的收藏', onlyFavorites: true);
+      case HomeAction.notes:
+        await showCues('AB 笔记');
+      case HomeAction.words:
+        await showWords();
+      case HomeAction.reminder:
+        await schedule(false);
+      case HomeAction.timedPlay:
+        await schedule(true);
+      case HomeAction.sleep:
+        await showSleep();
+      case HomeAction.studyTime:
+        await pushPage(
+          '学习时长',
+          ListView(
+            children: [
+              for (final key
+                  in (library!.studySeconds.keys.toList()
+                    ..sort((a, b) => b.compareTo(a))))
+                ListTile(
+                  title: Text(key),
+                  trailing: Text(
+                    '${(library!.studySeconds[key]! / 60).toStringAsFixed(1)} 分钟',
+                  ),
+                ),
+            ],
+          ),
+        );
+      case HomeAction.speed:
+        await audioTool(false);
+      case HomeAction.videoAudio:
+        await audioTool(true);
+      case HomeAction.podcasts:
+        await info('播客', '播客订阅与更新尚未恢复。已下载的播客音频可从“添加”导入学习。');
+      case HomeAction.settings:
+        await showSettings();
+      case HomeAction.clearCache:
+        await info('清理缓存', '音频、字幕和录音属于学习资料，不作为缓存清除。系统临时导入文件会在传输结束后清理。');
+      case HomeAction.interfaces:
+        await info(
+          '指令接口',
+          'tdb://play\ntdb://pause\ntdb://upload\n\n播放指定文件：tdb://play?mediaId=文件ID\n\n系统提醒需要点击通知才会播放，iOS 不允许本应用保证在后台按时自动开播。',
+        );
+      case HomeAction.instructions:
+      case HomeAction.help:
+        await info(
+          '使用帮助',
+          '添加：Wi-Fi 上传或系统“文件”导入。\n文件夹：右上角 ＋ 新建；长按文件可重命名、移动、删除。\n编辑列表：勾选后批量移动、删除，拖动手柄排序。\n播放器：设置 A/B 后添加行；分句/识别可选静音分句或系统语音识别。\n录音：录制、播放与删除；语句可单独跟读并对照原声。\n\n在线听力资源、云同步、播客服务及自动翻译尚未接入。',
+        );
+      case HomeAction.feedback:
+        await tools.openUrl(Uri.parse('https://github.com/hysgit/tdb/issues'));
+      case HomeAction.share:
+        await tools.share('Tdb · 本地音视频听读与复读练习');
+    }
+  }
+
+  Future<void> showMediaList(
+    String title,
+    List<MediaItem> entries, {
+    bool reorder = false,
+  }) async {
+    final ids = entries.map((i) => i.id).toList();
+    await pushPage(
+      title,
+      StatefulBuilder(
+        builder: (context, update) {
+          final current = [
+            for (final id in ids) ...library!.items.where((i) => i.id == id),
+          ];
+          if (current.isEmpty) return const Center(child: Text('暂无文件'));
+          if (!reorder) {
+            return ListView(
+              children: [
+                for (final item in current)
+                  ListTile(
+                    title: Text(item.name),
+                    onTap: () => unawaited(guard(() => open(item))),
+                  ),
+              ],
+            );
+          }
+          return ReorderableListView(
+            children: [
+              for (final item in current)
+                ListTile(
+                  key: ValueKey(item.id),
+                  title: Text(item.name),
+                  onTap: () => unawaited(guard(() => open(item))),
+                ),
+            ],
+            onReorderItem: (from, to) => unawaited(
+              guard(() async {
+                final before = [...ids];
+                ids.insert(to, ids.removeAt(from));
+                try {
+                  await library!.reorder(ids);
+                } catch (_) {
+                  ids.setAll(0, before);
+                  rethrow;
+                }
+                update(() {});
+              }),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> showCues(String title, {bool onlyFavorites = false}) => pushPage(
+    title,
+    StatefulBuilder(
+      builder: (context, update) {
+        final entries = [
+          for (final item in library!.items)
+            for (final cue in item.cues)
+              if (!onlyFavorites || item.favorites.contains(cue.id))
+                (item, cue),
+        ];
+        return entries.isEmpty
+            ? const Center(child: Text('暂无笔记'))
+            : ListView(
+                children: [
+                  for (final (item, cue) in entries)
+                    ListTile(
+                      title: Text(cue.text.isEmpty ? 'AB 片段' : cue.text),
+                      subtitle: Text('${item.name} · ${formatTime(cue.start)}'),
+                      onTap: () => unawaited(guard(() => open(item, cue: cue))),
+                      trailing: onlyFavorites
+                          ? IconButton(
+                              icon: const Icon(Icons.star, color: orange),
+                              tooltip: '取消收藏',
+                              onPressed: () => unawaited(
+                                guard(() async {
+                                  item.favorites = {...item.favorites}
+                                    ..remove(cue.id);
+                                  await save();
+                                  update(() {});
+                                }),
+                              ),
+                            )
+                          : null,
+                    ),
+                ],
+              );
+      },
+    ),
+  );
+  Future<void> showWords() => pushPage(
+    '单词本',
+    StatefulBuilder(
+      builder: (context, update) => ListView(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.add),
+            title: const Text('添加单词'),
+            onTap: () => unawaited(
+              guard(() async {
+                final word = await input('单词');
+                if (word == null || word.isEmpty) return;
+                if (!library!.words.contains(word)) {
+                  library!.words.add(word);
+                  await save();
+                  update(() {});
+                }
+              }),
+            ),
+          ),
+          for (final word in [...library!.words])
+            ListTile(
+              title: Text(word),
+              onTap: () => unawaited(guard(() => tools.lookup(word))),
+              trailing: IconButton(
+                tooltip: '删除单词',
+                icon: const Icon(Icons.close),
+                onPressed: () => unawaited(
+                  guard(() async {
+                    library!.words.remove(word);
+                    await save();
+                    update(() {});
+                  }),
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+  );
+  Future<void> audioTool(bool video) async {
+    final entries = library!.items.where((i) => !video || i.isVideo).toList();
+    if (entries.isEmpty) {
+      await info(video ? '视频转 mp3' : '音频加减速', '请先导入${video ? '视频' : '音频'}文件。');
+      return;
+    }
+    final media = await showDialog<MediaItem>(
+      context: context,
+      builder: (dialog) => SimpleDialog(
+        title: const Text('选择文件'),
+        children: [
+          for (final item in entries)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(dialog, item),
+              child: Text(item.name),
+            ),
+        ],
+      ),
+    );
+    if (media == null || !mounted) return;
+    await player.pause();
+    await pushPage(
+      video ? '视频转 mp3' : '音频加减速',
+      AudioToolsPage(
+        item: media,
+        videoMode: video,
+        onExported: (path, name) =>
+            library!.importFile(path, name, folder: media.folder),
+      ),
+    );
+  }
+
+  Future<void> schedule(bool playback) async {
+    final now = DateTime.now();
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(now.add(const Duration(minutes: 5))),
+    );
+    if (time == null) return;
+    var at = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    if (!at.isAfter(now)) at = at.add(const Duration(days: 1));
+    MediaItem? media;
+    if (playback) {
+      media = player.item ?? library!.items.firstOrNull;
+      if (media == null) throw StateError('请先导入并打开要播放的文件');
+    }
+    await tools.schedule(
+      id: playback ? 'timed-play' : 'study-reminder',
+      title: playback ? 'Tdb 定时播放' : 'Tdb 学习提醒',
+      body: playback ? '点击播放 ${media!.name}' : '开始今天的听读练习',
+      at: at,
+      mediaId: media?.id,
+    );
+    message(
+      '已设置 ${at.month}/${at.day} ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')} 提醒${playback ? '，点击通知开播' : ''}',
+    );
+  }
+
+  Future<void> showSleep() => showModalBottomSheet<void>(
+    context: context,
+    builder: (sheet) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final n in [0, 5, 10, 15, 30, 60])
+            ListTile(
+              title: Text(n == 0 ? '关闭定时' : '$n 分钟后暂停'),
+              onTap: () {
+                player.setSleep(n == 0 ? null : Duration(minutes: n));
+                Navigator.pop(sheet);
+              },
+            ),
+        ],
+      ),
+    ),
+  );
+  Future<void> showSettings() => pushPage(
+    '设置',
+    StatefulBuilder(
+      builder: (context, update) => ListView(
+        children: [
+          ListTile(
+            title: const Text('播放速度'),
+            trailing: Text('${player.speed.toStringAsFixed(2)}×'),
+            subtitle: Slider(
+              value: player.speed,
+              min: .1,
+              max: 5,
+              divisions: 49,
+              onChanged: (v) => unawaited(
+                guard(() async {
+                  await player.setSpeed(v);
+                  update(() {});
+                }),
+              ),
+              onChangeEnd: (_) => unawaited(guard(save)),
+            ),
+          ),
+          ListTile(
+            title: const Text('音量'),
+            subtitle: Slider(
+              value: player.volume,
+              onChanged: (v) => unawaited(
+                guard(() async {
+                  await player.setVolume(v);
+                  update(() {});
+                }),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('取消学习提醒'),
+            onTap: () => unawaited(
+              guard(() => tools.cancelNotification('study-reminder')),
+            ),
+          ),
+          ListTile(
+            title: const Text('取消定时播放'),
+            onTap: () =>
+                unawaited(guard(() => tools.cancelNotification('timed-play'))),
+          ),
+          const AboutListTile(
+            applicationName: 'Tdb',
+            applicationVersion: '1.1.0',
+            applicationLegalese: '开源组件许可见应用许可页与源码仓库 THIRD_PARTY_NOTICES.md',
+          ),
+        ],
+      ),
+    ),
+  );
+  Widget get hearingView => ListView(
+    children: [
+      const Padding(
+        padding: EdgeInsets.all(20),
+        child: Text(
+          '在线听力资源服务尚未恢复。已导入的资料可直接播放学习。',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+      for (final name in library!.folders)
+        ListTile(
+          leading: const Icon(Icons.folder_outlined, color: orange),
+          title: Text(name),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => setState(() {
+            folder = name;
+            page = 0;
+          }),
+        ),
+      ListTile(
+        leading: const Icon(Icons.file_download_outlined, color: orange),
+        title: const Text('导入听力资料'),
+        onTap: () => unawaited(guard(showImport)),
+      ),
+    ],
   );
 }

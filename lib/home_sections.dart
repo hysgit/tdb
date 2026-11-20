@@ -892,17 +892,18 @@ class _MyRow extends StatelessWidget {
               children: [
                 Text(title, style: const TextStyle(fontSize: 16, color: _ink)),
                 const SizedBox(width: 12),
-                const Spacer(),
                 if (trailing != null)
-                  Flexible(
-                    flex: 3,
+                  Expanded(
                     child: Text(
                       trailing!,
+                      textAlign: TextAlign.right,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontSize: 12, color: _muted),
                     ),
-                  ),
+                  )
+                else
+                  const Spacer(),
                 const SizedBox(width: 3),
                 const Icon(
                   Icons.chevron_right,
