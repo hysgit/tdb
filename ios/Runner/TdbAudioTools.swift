@@ -148,7 +148,8 @@ final class TdbAudioTools: NSObject, FlutterPlugin {
       let pcm: [String: Any] = [AVFormatIDKey: kAudioFormatLinearPCM,
                                AVSampleRateKey: 44100, AVNumberOfChannelsKey: 2,
                                AVLinearPCMBitDepthKey: 16, AVLinearPCMIsFloatKey: false,
-                               AVLinearPCMIsBigEndianKey: false]
+                               AVLinearPCMIsBigEndianKey: false,
+                               AVLinearPCMIsNonInterleaved: false]
       var readerSettings = pcm
       readerSettings[AVLinearPCMIsNonInterleaved] = false
       let reader = try AVAssetReader(asset: composition)
