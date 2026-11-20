@@ -73,3 +73,27 @@ workflows:
     artifacts:
       - build/ios/Tdb-Simulator.zip
       - /tmp/xcodebuild_logs/**/*.log
+
+  tdb-ios-native-checks:
+    name: Tdb iOS Native Checks
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      flutter: 3.50.0
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Resolve packages
+        script: flutter pub get
+      - name: Verify real native audio export
+        script: |
+          set -e
+          xcodebuild -version
+          python3 scripts/run_ios_audio_probe.py --timeout 1200
+      - name: Verify real LAN upload and waveform
+        script: |
+          set -e
+          python3 scripts/run_ios_transfer_probe.py --timeout 1500
+    artifacts:
+      - build/ios-audio-probe.log
+      - build/ios-runtime-probe.log
