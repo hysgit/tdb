@@ -15,6 +15,7 @@ class FakeAudio extends Fake implements AudioPlayer {
   bool active = false;
   ProcessingState processing = ProcessingState.idle;
   int plays = 0;
+  double lastSpeed = 1;
 
   @override
   Stream<PlayerException> get errorStream => errors.stream;
@@ -68,7 +69,10 @@ class FakeAudio extends Fake implements AudioPlayer {
   }
 
   @override
-  Future<void> setSpeed(double speed) async {}
+  Future<void> setSpeed(double speed) async {
+    lastSpeed = speed;
+  }
+
   @override
   Future<void> setVolume(double volume) async {}
   @override
@@ -118,6 +122,22 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await temporary.delete(recursive: true);
   });
+
+  test(
+    'speed supports the recorded 0.1 to 5.0 range and clamps outside it',
+    () async {
+      await player.open(first);
+      await player.setSpeed(5.0);
+      expect(player.speed, 5.0);
+      expect(audio.lastSpeed, 5.0);
+      await player.setSpeed(8.0);
+      expect(player.speed, 5.0);
+      expect(audio.lastSpeed, 5.0);
+      await player.setSpeed(0.0);
+      expect(player.speed, 0.1);
+      expect(audio.lastSpeed, 0.1);
+    },
+  );
 
   test('dispose during a pending load prevents later notifications', () async {
     final gate = Completer<void>();

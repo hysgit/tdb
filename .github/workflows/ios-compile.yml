@@ -8,6 +8,8 @@ on:
       - 'lib/**'
       - 'ios/**'
       - 'test/**'
+      - 'integration_test/**'
+      - 'scripts/run_ios_transfer_probe.py'
       - 'assets/**'
       - 'pubspec.*'
   workflow_dispatch:
@@ -62,4 +64,36 @@ jobs:
         with:
           name: Tdb-iOS-unsigned-${{ github.run_number }}
           path: build/ios/Tdb-unsigned.zip
+          retention-days: 7
+
+  ios-runtime:
+    runs-on: macos-15
+    timeout-minutes: 35
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - name: Check out Tdb
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.50.0'
+          channel: stable
+          cache: true
+      - name: Resolve packages
+        run: flutter pub get
+      - name: Probe real iOS LAN transfer and waveform decoding
+        run: |
+          set -e
+          xcodebuild -version
+          python3 scripts/run_ios_transfer_probe.py --timeout 1500
+      - name: Save sanitized runtime diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: Tdb-iOS-runtime-${{ github.run_number }}
+          path: build/ios-runtime-probe.log
+          if-no-files-found: ignore
           retention-days: 7

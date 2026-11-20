@@ -244,7 +244,7 @@ class StudyPlayer extends ChangeNotifier {
 
   Future<void> setSpeed(double value) async {
     if (_disposed) return;
-    speed = value.clamp(0.1, 3.0);
+    speed = value.clamp(0.1, 5.0);
     try {
       if (_ready && !loading) {
         if (video != null) {

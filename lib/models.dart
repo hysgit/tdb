@@ -40,6 +40,47 @@ class Cue {
     'translation': translation,
     'inferredTiming': inferredTiming,
   };
+
+  Cue copyWith({
+    Duration? start,
+    Duration? end,
+    String? text,
+    String? translation,
+    bool? inferredTiming,
+  }) => Cue(
+    id: id,
+    start: start ?? this.start,
+    end: end ?? this.end,
+    text: text ?? this.text,
+    translation: translation ?? this.translation,
+    inferredTiming: inferredTiming ?? this.inferredTiming,
+  );
+}
+
+String formatABTime(Duration time) =>
+    '${time.inMinutes}:'
+    '${(time.inSeconds % 60).toString().padLeft(2, '0')}:'
+    '${(time.inMilliseconds % 1000).toString().padLeft(3, '0')}';
+
+String encodeSubtitles(List<Cue> cues, {String format = 'json'}) {
+  if (format == 'json') {
+    return const JsonEncoder.withIndent(
+      '  ',
+    ).convert(cues.map((cue) => cue.toJson()).toList());
+  }
+  String stamp(Duration time) =>
+      '${time.inHours.toString().padLeft(2, '0')}:'
+      '${(time.inMinutes % 60).toString().padLeft(2, '0')}:'
+      '${(time.inSeconds % 60).toString().padLeft(2, '0')},'
+      '${(time.inMilliseconds % 1000).toString().padLeft(3, '0')}';
+  return cues.indexed
+      .map(
+        (entry) =>
+            '${entry.$1 + 1}\n'
+            '${stamp(entry.$2.start)} --> ${stamp(entry.$2.end)}\n'
+            '${entry.$2.text}${entry.$2.translation.isEmpty ? '' : '\n${entry.$2.translation}'}\n',
+      )
+      .join('\n');
 }
 
 /// Parses timed captions, or assigns explicitly inferred five-second text cues.
