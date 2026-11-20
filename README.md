@@ -2,7 +2,7 @@
 
 使用 Flutter 重建的本地音视频听读应用。Android / iOS 包标识均为 `com.hysgit.tdb`，显示名称为 `Tdb`，源码版本 `1.1.0+4`。云发布构建号由流水线分配。
 
-1.1.0（3）的 MP3 转换存在已复现的原生崩溃，暂时避开该功能。源码已补齐 PCM 写入参数，修正版正在进行原生回归与发布验证；M4A 导出和 iOS 真实 LAN/波形探针已有独立通过结果。
+1.1.0（4）已修复构建 3 的 MP3 原生崩溃，并发布到 TestFlight。GitHub iOS 模拟器的 M4A/MP3、LAN 上传与波形回归全部通过；Codemagic 的 iOS 26.5 补充模拟器在音频导出/结束等待中超时，原因尚未确定。**用户手机上的 Wi-Fi 上传页仍无法从电脑打开，正在进行原版同机对照，不能记为已解决。**
 
 当前界面与操作以用户提供的新版操作录屏为主要依据，IPA 自带的旧教程不作为当前版本的界面目标。见 [当前录屏与资源恢复依据](docs/2026-11-20_当前录屏与资源解密依据.md)。
 
@@ -37,7 +37,7 @@ $env:ANDROID_HOME='D:\Android\Sdk'
 
 Android 调试包生成到 `build/app/outputs/flutter-apk/app-debug.apk`。iOS 部署目标为 15.0，云构建见 [发布说明](docs/cloud-release.md)。
 
-iOS **1.1.0（3）已发布到 TestFlight 内部测试**：[Codemagic 成功构建](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6affcbb98f52ca2751292a5a)。App Store Connect 已确认“Tdb 内测”组中有 1 名测试者、2 个构建，1.1.0（3）状态为 `Testing`，测试账号页面显示已安装。手机功能验收另计；同源码的独立 iOS 无签名编译也已通过。
+iOS **1.1.0（4）已发布到 TestFlight 内部测试**：[Codemagic 成功构建](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6b0053258f52ca2751295810)。App Store Connect 已确认“Tdb 内测”组中有 1 名测试者、3 个构建，1.1.0（4）状态为 `Testing`。构建 4 的安装与手机功能验收另计；[同生产修复的 GitHub 回归](https://github.com/hysgit/tdb/actions/runs/44684273689)中 iOS 编译、LAN/波形和原生音频三项任务均成功。
 
 ## 还原依据与边界
 
