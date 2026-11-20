@@ -16,6 +16,11 @@ class MediaItem {
     this.cues = const [],
     this.favorites = const {},
     this.recordings = const [],
+    this.cueRecordings = const {},
+    this.customSpeeds = const [.4, .5, .6, .7, .8, .9, 1, 1.8],
+    this.singleSentence = true,
+    this.repeatCount = 0,
+    this.repeatGapMs = 0,
   });
   final String id;
   String name;
@@ -25,6 +30,11 @@ class MediaItem {
   List<Cue> cues;
   Set<String> favorites;
   List<String> recordings;
+  Map<String, List<String>> cueRecordings;
+  List<double> customSpeeds;
+  bool singleSentence;
+  int repeatCount;
+  int repeatGapMs;
   bool get isVideo =>
       RegExp(r'\.(mp4|m4v|mov|webm)$', caseSensitive: false).hasMatch(path);
   Map<String, dynamic> toJson() => {
@@ -35,7 +45,12 @@ class MediaItem {
     'positionMs': positionMs,
     'cues': cues.map((c) => c.toJson()).toList(),
     'favorites': favorites.toList(),
-    'recordings': recordings,
+    'recordings': [...recordings],
+    'cueRecordings': cueRecordings.map((id, paths) => MapEntry(id, [...paths])),
+    'customSpeeds': [...customSpeeds],
+    'singleSentence': singleSentence,
+    'repeatCount': repeatCount,
+    'repeatGapMs': repeatGapMs,
   };
   factory MediaItem.fromJson(Map<String, dynamic> j) => MediaItem(
     id: j['id'] as String,
@@ -48,7 +63,47 @@ class MediaItem {
         .toList(),
     favorites: Set<String>.from(j['favorites'] as List? ?? []),
     recordings: List<String>.from(j['recordings'] as List? ?? []),
+    cueRecordings: (j['cueRecordings'] as Map<String, dynamic>? ?? {}).map(
+      (id, paths) => MapEntry(id, List<String>.from(paths as List)),
+    ),
+    customSpeeds: j['customSpeeds'] == null
+        ? const [.4, .5, .6, .7, .8, .9, 1, 1.8]
+        : (j['customSpeeds'] as List)
+              .map((value) => (value as num).toDouble())
+              .where((value) => value.isFinite && value >= .1 && value <= 5)
+              .toList(),
+    singleSentence: j['singleSentence'] as bool? ?? true,
+    repeatCount: j['repeatCount'] as int? ?? 0,
+    repeatGapMs: j['repeatGapMs'] as int? ?? 0,
   );
+
+  void replaceCue(Cue cue) {
+    cues = [...cues.where((entry) => entry.id != cue.id), cue]
+      ..sort((a, b) => a.start.compareTo(b.start));
+  }
+
+  void removeCue(String cueId) {
+    cues = cues.where((cue) => cue.id != cueId).toList();
+    favorites = {...favorites}..remove(cueId);
+    cueRecordings = {...cueRecordings}..remove(cueId);
+  }
+
+  void attachRecording(String cueId, String path) {
+    recordings = {...recordings, path}.toList();
+    if (!cues.any((cue) => cue.id == cueId)) return;
+    cueRecordings = {
+      ...cueRecordings,
+      cueId: {...?cueRecordings[cueId], path}.toList(),
+    };
+  }
+
+  void detachRecording(String path) {
+    recordings = recordings.where((entry) => entry != path).toList();
+    cueRecordings = cueRecordings.map(
+      (id, paths) =>
+          MapEntry(id, paths.where((entry) => entry != path).toList()),
+    );
+  }
 }
 
 class LibraryRepository {
