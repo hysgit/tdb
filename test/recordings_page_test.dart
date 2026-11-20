@@ -288,6 +288,47 @@ void main() {
     await unmount(tester);
   });
   testWidgets(
+    'root navigation is blocked by pending save and proceeds only after retry succeeds',
+    (tester) async {
+      await mount(tester);
+      await start(tester);
+      failSave = true;
+      await tester.tap(find.text('停止并保存'));
+      await flush(tester);
+      expect(saved, 1);
+      Future<void> openPlayer() async {
+        await pageKey.currentState!.finishRecording();
+        unawaited(
+          Navigator.of(pageKey.currentContext!).pushReplacement(
+            MaterialPageRoute<void>(
+              builder: (_) => const Scaffold(body: Text('player route')),
+            ),
+          ),
+        );
+      }
+
+      final blocked = expectLater(openPlayer(), throwsStateError);
+      await flush(tester);
+      await blocked;
+      expect(saved, 2);
+      expect(stops, 1);
+      expect(find.byType(RecordingsPage), findsOneWidget);
+      expect(find.text('player route'), findsNothing);
+      expect(find.text('保存失败，录音文件已保留'), findsOneWidget);
+      expect(File(path).existsSync(), isTrue);
+      failSave = false;
+      final opening = openPlayer();
+      await flush(tester);
+      await opening;
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(saved, 3);
+      expect(stops, 1);
+      expect(find.text('player route'), findsOneWidget);
+      expect(File(path).existsSync(), isTrue);
+      await unmount(tester);
+    },
+  );
+  testWidgets(
     'failed save retains the path and retries without stopping again',
     (tester) async {
       await mount(tester);

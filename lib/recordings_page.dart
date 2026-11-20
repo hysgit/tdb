@@ -82,12 +82,16 @@ class RecordingsPageState extends State<RecordingsPage> {
   }
 
   /// Stop a pending/active recording before another page starts audio playback.
-  /// A failed save retains its path in this page and can be retried later.
+  /// A failed save retains its path and throws so the caller keeps this page
+  /// available for retry rather than navigating away and losing its index.
   Future<void> finishRecording() async {
     await _starting;
     await _stopAndSave();
     await _stopPlayback();
     if (_recording) throw StateError(_error ?? '录音未能停止');
+    if (_pendingPath != null) {
+      throw StateError('录音尚未保存，请在录音页重试保存后再继续。${_saveError ?? ''}');
+    }
   }
 
   Future<void> _start() {
