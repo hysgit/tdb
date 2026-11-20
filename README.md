@@ -35,7 +35,7 @@ $env:ANDROID_HOME='D:\Android\Sdk'
 
 Android 调试包生成到 `build/app/outputs/flutter-apk/app-debug.apk`。iOS 部署目标为 15.0，云构建见 [发布说明](docs/cloud-release.md)。
 
-iOS **1.0.0（2）已发布到 TestFlight 内部测试**：[Codemagic 成功构建](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6aff190f8f52ca275128eeb7)。App Store Connect 已确认“Tdb 内测”组中有 1 名测试者、1 个构建，版本状态为 `Testing`。受邀账号可在 TestFlight 接受邀请并安装。
+iOS **1.1.0（3）已发布到 TestFlight 内部测试**：[Codemagic 成功构建](https://codemagic.io/app/6afef749aec4811f2d5c1021/build/6affcbb98f52ca2751292a5a)。App Store Connect 已确认“Tdb 内测”组中有 1 名测试者、2 个构建，1.1.0（3）状态为 `Testing`，测试账号页面显示已安装。手机功能验收另计；同源码的独立 iOS 无签名编译也已通过。
 
 ## 还原依据与边界
 
