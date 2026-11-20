@@ -3,8 +3,27 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-/// Manually started, token-protected uploads from the local network.
+typedef TransferAddress = ({String name, String address});
+
+/// Foreground LAN uploads. The page supplies the session token to its client.
 class WifiTransfer {
+  WifiTransfer({
+    Future<List<TransferAddress>> Function()? addressProvider,
+    int? preferredPort,
+    bool? isIOS,
+  }) : _addressProvider = addressProvider ?? _interfaceAddresses,
+       _preferredPort = preferredPort ?? (Platform.isIOS ? 80 : 8080),
+       _isIOS = isIOS ?? Platform.isIOS;
+
+  final Future<List<TransferAddress>> Function() _addressProvider;
+  final int _preferredPort;
+  final bool _isIOS;
+  final _changes = StreamController<void>.broadcast();
+  Stream<void> get changes => _changes.stream;
+  int requestsReceived = 0;
+  int filesImported = 0;
+  String? lastError;
+
   static const _maximumBytes = 256 * 1024 * 1024;
   static const _extensions = {
     'mp3',
@@ -37,17 +56,40 @@ class WifiTransfer {
     Future<void> Function(String temporaryPath, String filename) onFile,
   ) async {
     if (_stopping != null) await _stopping;
-    return _starting ??= _start(onFile);
+    final existing = _starting;
+    if (existing != null) return existing;
+    final operation = _start(onFile);
+    _starting = operation;
+    try {
+      return await operation;
+    } catch (_) {
+      if (identical(_starting, operation)) _starting = null;
+      rethrow;
+    }
   }
 
   Future<List<String>> _start(
     Future<void> Function(String temporaryPath, String filename) onFile,
   ) async {
     try {
+      final address = chooseLanAddress(await _addressProvider(), isIOS: _isIOS);
+      if (address == null) {
+        throw StateError('未检测到可供电脑访问的 Wi-Fi 地址，请连接 Wi-Fi 后重试。');
+      }
       final root = await Directory.systemTemp.createTemp('tingdubao-wifi-');
       _temporaryRoot = root;
-      final server = await HttpServer.bind(InternetAddress.anyIPv4, 0);
+      HttpServer server;
+      try {
+        server = await HttpServer.bind(address, _preferredPort);
+      } on SocketException {
+        if (_preferredPort == 0) rethrow;
+        server = await HttpServer.bind(address, 0);
+      }
       _server = server;
+      requestsReceived = 0;
+      filesImported = 0;
+      lastError = null;
+      _notify();
       final random = Random.secure();
       final token = base64Url
           .encode(List.generate(32, (_) => random.nextInt(256)))
@@ -58,22 +100,7 @@ class WifiTransfer {
         unawaited(operation.whenComplete(() => _requests.remove(operation)));
       }, onError: (Object _) {});
 
-      final interfaces = await NetworkInterface.list(
-        type: InternetAddressType.IPv4,
-        includeLoopback: false,
-      );
-      final addresses = interfaces
-          .expand((network) => network.addresses)
-          .where(_isLocal)
-          .map((address) => address.address)
-          .toSet();
-      if (addresses.isEmpty) {
-        addresses.add(InternetAddress.loopbackIPv4.address);
-      }
-      return [
-        for (final address in addresses)
-          'http://$address:${server.port}/$token/',
-      ];
+      return ['http://$address${server.port == 80 ? '' : ':${server.port}'}/'];
     } catch (_) {
       await _server?.close(force: true);
       _server = null;
@@ -82,7 +109,6 @@ class WifiTransfer {
       if (root != null && await root.exists()) {
         await root.delete(recursive: true);
       }
-      _starting = null;
       rethrow;
     }
   }
@@ -114,6 +140,56 @@ class WifiTransfer {
     _temporaryRoot = null;
     if (root != null && await root.exists()) await root.delete(recursive: true);
     _starting = null;
+    _notify();
+  }
+
+  Future<void> dispose() async {
+    await stop();
+    await _changes.close();
+  }
+
+  void _notify() {
+    if (!_changes.isClosed) _changes.add(null);
+  }
+
+  static Future<List<TransferAddress>> _interfaceAddresses() async => [
+    for (final network in await NetworkInterface.list(
+      type: InternetAddressType.IPv4,
+      includeLoopback: false,
+    ))
+      for (final address in network.addresses)
+        (name: network.name, address: address.address),
+  ];
+
+  static String? chooseLanAddress(
+    List<TransferAddress> interfaces, {
+    required bool isIOS,
+  }) {
+    final candidates = interfaces.where((entry) {
+      final name = entry.name.toLowerCase();
+      if (RegExp(
+            r'^(lo\d*|pdp_ip|rmnet|utun|tun|tap|wg\d|ipsec)',
+          ).hasMatch(name) ||
+          RegExp(
+            r'vethernet|virtualbox|vmware|wireguard|tailscale',
+          ).hasMatch(name)) {
+        return false;
+      }
+      final ip = InternetAddress.tryParse(entry.address);
+      if (ip == null || ip.type != InternetAddressType.IPv4 || ip.isLoopback)
+        return false;
+      if (!_isLocal(ip) || ip.rawAddress[0] == 169) return false;
+      return !isIOS || name == 'en0' || name == 'ap1' || name == 'bridge100';
+    }).toList();
+    int rank(String name) =>
+        RegExp(
+          r'^(en0|wlan|wifi)|wi-fi|wireless|无线',
+          caseSensitive: false,
+        ).hasMatch(name)
+        ? 0
+        : 1;
+    candidates.sort((a, b) => rank(a.name).compareTo(rank(b.name)));
+    return candidates.isEmpty ? null : candidates.first.address;
   }
 
   static bool _isLocal(InternetAddress address) {
@@ -141,19 +217,21 @@ class WifiTransfer {
     try {
       final address = request.connectionInfo?.remoteAddress;
       final path = request.uri.path;
+      requestsReceived++;
+      _notify();
       if (address == null ||
           !_isLocal(address) ||
-          (path != '/$token/' && path != '/$token/upload')) {
+          (path != '/' && path != '/$token/' && path != '/$token/upload')) {
         await _reply(response, HttpStatus.notFound, '地址无效，请使用当前传输页面显示的地址。');
         return;
       }
-      if (request.method == 'GET' && path == '/$token/') {
+      if (request.method == 'GET' && (path == '/' || path == '/$token/')) {
         response.headers.contentType = ContentType.html;
         response.headers.set(
           'Content-Security-Policy',
           "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'",
         );
-        response.write(_page);
+        response.write(_page.replaceAll('__UPLOAD_PATH__', '/$token/upload'));
         await response.close();
         return;
       }
@@ -223,13 +301,25 @@ class WifiTransfer {
         return;
       }
       await onFile(file.path, filename);
+      filesImported++;
+      lastError = null;
+      _notify();
       await _reply(response, HttpStatus.ok, '导入完成。');
-    } catch (_) {
+    } catch (error) {
+      final message = error is StateError
+          ? error.message.toString()
+          : error is FormatException
+          ? '字幕格式无法识别，请使用 UTF-8 字幕文件。'
+          : '上传或导入失败，请重新上传。';
+      lastError = message;
+      _notify();
       try {
         await _reply(
           response,
-          HttpStatus.internalServerError,
-          '上传或导入失败，请重新上传。',
+          error is StateError || error is FormatException
+              ? HttpStatus.badRequest
+              : HttpStatus.internalServerError,
+          message,
         );
       } catch (_) {
         // The client may have disconnected before receiving the response.
@@ -281,9 +371,9 @@ class WifiTransfer {
   static const _page = '''<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>听读宝 Wi-Fi 传输</title>
+<title>Tdb Wi-Fi 传输</title>
 <style>body{font:17px system-ui;max-width:640px;margin:60px auto;padding:0 24px;color:#252525}h1{font-size:28px}input,button{font:inherit;margin:12px 0}button{background:#ff902c;border:0;border-radius:10px;padding:12px 24px}li{margin:12px 0;overflow-wrap:anywhere}</style>
-</head><body><h1>听读宝 Wi-Fi 传输</h1>
+</head><body data-upload-path="__UPLOAD_PATH__"><h1>Tdb Wi-Fi 传输</h1>
 <p>选择音视频或字幕文件，每个文件最多 256 MiB。请保持手机传输页面开启。</p>
 <input id="files" type="file" multiple accept=".mp3,.m4a,.wav,.flac,.aac,.ogg,.opus,.mp4,.mov,.m4v,.webm,.lrc,.srt,.vtt,.txt,.json">
 <br><button id="send">开始上传</button><ul id="results"></ul>
@@ -299,7 +389,7 @@ send.addEventListener('click',async()=>{
    row.textContent=file.name+'：上传中…';
    if(file.size>268435456){row.textContent=file.name+'：文件超过 256 MiB 上限';continue;}
    try {
-    const response=await fetch('upload?name='+encodeURIComponent(file.name),{method:'PUT',body:file});
+    const response=await fetch(document.body.dataset.uploadPath+'?name='+encodeURIComponent(file.name),{method:'PUT',body:file});
     const message=await response.text();
     row.textContent=file.name+'：'+(response.ok?message:'失败，'+message);
    }catch(error){row.textContent=file.name+'：连接中断，请确认手机仍在传输页面后重试';}

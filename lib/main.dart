@@ -10,6 +10,8 @@ import 'models.dart';
 import 'player_view.dart';
 import 'services/player.dart';
 import 'services/wifi_transfer.dart';
+import 'services/transfer_wake.dart';
+import 'wifi_transfer_page.dart';
 
 const orange = Color(0xFFDC601D);
 const paper = Color(0xFFF7F7F9);
@@ -77,6 +79,7 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
   Set<String> folders = {};
   String? folder, initError;
   bool booting = true, importing = false, reverseSort = false;
+  bool _wifiOpening = false;
   int page = 0;
   Timer? autosave;
 
@@ -179,7 +182,7 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     autosave?.cancel();
     unawaited(guard(save));
-    unawaited(transfer.stop());
+    unawaited(transfer.dispose());
     player.dispose();
     query.dispose();
     super.dispose();
@@ -757,10 +760,7 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
       ]),
       const SizedBox(height: 20),
       section('关于', [
-        const ListTile(
-          title: Text('Tdb'),
-          subtitle: Text('1.0.0 · 本地听读与复读练习'),
-        ),
+        const ListTile(title: Text('Tdb'), subtitle: Text('1.0.0 · 本地听读与复读练习')),
         ListTile(
           title: const Text('功能与还原范围'),
           trailing: const Icon(Icons.chevron_right),
@@ -812,54 +812,25 @@ class _StudyHomeState extends State<StudyHome> with WidgetsBindingObserver {
   }
 
   Future<void> showWifi() async {
-    final urls = await transfer.start(receiveFile);
-    if (!mounted) {
-      await transfer.stop();
-      return;
-    }
+    if (_wifiOpening) return;
+    _wifiOpening = true;
     try {
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Wi-Fi 传文件'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('电脑与手机连接同一 Wi-Fi，在电脑浏览器中打开：'),
-                const SizedBox(height: 12),
-                for (final url in urls)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: SelectableText(
-                      url,
-                      style: const TextStyle(color: orange),
-                    ),
-                  ),
-                const Text(
-                  '保持应用在前台。关闭此窗口即停止传输。字幕将添加到当前打开的文件。',
-                  style: TextStyle(color: Colors.black54, height: 1.5),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: urls.join('\n')));
-              },
-              child: const Text('复制地址'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('停止传输'),
-            ),
-          ],
+      await TransferWake.setActive(true);
+      final urls = await transfer.start(receiveFile);
+      if (!mounted) return;
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) =>
+              WifiTransferPage(url: urls.single, transfer: transfer),
         ),
       );
     } finally {
-      await transfer.stop();
+      try {
+        await transfer.stop();
+      } finally {
+        await TransferWake.setActive(false);
+        _wifiOpening = false;
+      }
     }
   }
 

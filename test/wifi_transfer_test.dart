@@ -10,20 +10,28 @@ void main() {
   late HttpClient client;
 
   setUp(() {
-    transfer = WifiTransfer();
+    transfer = WifiTransfer(preferredPort: 0);
     client = HttpClient()..findProxy = (_) => 'DIRECT';
   });
 
   tearDown(() async {
     client.close(force: true);
-    await transfer.stop();
+    await transfer.dispose();
   });
+
+  final uploadAddresses = <String, Uri>{};
 
   Future<Uri> start(Future<void> Function(String, String) onFile) async {
     final addresses = await transfer.start(onFile);
     expect(addresses, isNotEmpty);
-    final address = Uri.parse(addresses.first);
-    return address.replace(host: InternetAddress.loopbackIPv4.address);
+    final address = Uri.parse(addresses.single);
+    final response = await (await client.getUrl(address)).close();
+    final page = await utf8.decoder.bind(response).join();
+    final path = RegExp(
+      'data-upload-path="([^"]+)"',
+    ).firstMatch(page)!.group(1)!;
+    uploadAddresses[address.toString()] = address.resolve(path);
+    return address;
   }
 
   Future<HttpClientResponse> upload(
@@ -31,7 +39,9 @@ void main() {
     String name,
     List<int> bytes,
   ) async {
-    final uri = base.resolve('upload').replace(queryParameters: {'name': name});
+    final uri = uploadAddresses[base.toString()]!.replace(
+      queryParameters: {'name': name},
+    );
     final request = await client.putUrl(uri);
     request.add(bytes);
     return request.close();
@@ -66,6 +76,72 @@ void main() {
     return result.future;
   }
 
+  test('iPhone advertises Wi-Fi rather than VPN or cellular interfaces', () {
+    expect(
+      WifiTransfer.chooseLanAddress([
+        (name: 'pdp_ip0', address: '10.99.1.4'),
+        (name: 'utun4', address: '10.8.0.2'),
+        (name: 'lo0', address: '127.0.0.1'),
+        (name: 'en0', address: '192.168.0.134'),
+      ], isIOS: true),
+      '192.168.0.134',
+    );
+    expect(
+      WifiTransfer.chooseLanAddress([
+        (name: 'pdp_ip0', address: '10.99.1.4'),
+        (name: 'utun4', address: '10.8.0.2'),
+      ], isIOS: true),
+      isNull,
+    );
+    expect(WifiTransfer.chooseLanAddress([], isIOS: true), isNull);
+  });
+
+  test(
+    'an absent Wi-Fi address does not start a loopback-only server',
+    () async {
+      await transfer.dispose();
+      transfer = WifiTransfer(
+        addressProvider: () async => [],
+        isIOS: true,
+        preferredPort: 0,
+      );
+      await expectLater(transfer.start((_, _) async {}), throwsStateError);
+      expect(transfer.running, isFalse);
+      await expectLater(transfer.start((_, _) async {}), throwsStateError);
+    },
+  );
+
+  test(
+    'stop during address discovery waits and leaves no listening server',
+    () async {
+      final realAddress = await start((_, _) async {});
+      await transfer.dispose();
+      final gate = Completer<List<TransferAddress>>();
+      var discoveries = 0;
+      transfer = WifiTransfer(
+        preferredPort: 0,
+        isIOS: true,
+        addressProvider: () {
+          discoveries++;
+          return gate.future;
+        },
+      );
+      final first = transfer.start((_, _) async {});
+      final second = transfer.start((_, _) async {});
+      final stopping = transfer.stop();
+      gate.complete([(name: 'en0', address: realAddress.host)]);
+      final addresses = await first;
+      expect(await second, addresses);
+      await stopping;
+      expect(discoveries, 1);
+      expect(transfer.running, isFalse);
+      await expectLater(
+        client.getUrl(Uri.parse(addresses.single)),
+        throwsA(isA<SocketException>()),
+      );
+    },
+  );
+
   test(
     'serves a Chinese upload page without opening CORS or directory listings',
     () async {
@@ -78,13 +154,18 @@ void main() {
       expect(response.headers.contentType?.mimeType, 'text/html');
       expect(response.headers.value('access-control-allow-origin'), isNull);
       expect(response.headers.value('cache-control'), 'no-store');
-      expect(page, contains('听读宝 Wi-Fi 传输'));
+      expect(page, contains('Tdb Wi-Fi 传输'));
       expect(page, contains('multiple'));
       expect(page, contains('textContent'));
       expect(page, isNot(contains('innerHTML')));
-      expect(base.pathSegments.first.length, greaterThanOrEqualTo(40));
+      expect(base.path, '/');
+      expect(base.host, isNot('127.0.0.1'));
+      expect(
+        uploadAddresses[base.toString()]!.pathSegments.first.length,
+        greaterThanOrEqualTo(40),
+      );
 
-      for (final path in ['/', '/wrong-token/', '${base.path}anything']) {
+      for (final path in ['/wrong-token/', '/anything']) {
         final denied = await client.getUrl(base.replace(path: path));
         final result = await denied.close();
         expect(result.statusCode, HttpStatus.notFound);
@@ -150,7 +231,10 @@ void main() {
     final response = await upload(base, 'empty.mp3', []);
     expect(response.statusCode, HttpStatus.badRequest);
     await response.drain<void>();
-    final request = await client.openUrl('OPTIONS', base.resolve('upload'));
+    final request = await client.openUrl(
+      'OPTIONS',
+      uploadAddresses[base.toString()]!,
+    );
     final options = await request.close();
     expect(options.statusCode, HttpStatus.methodNotAllowed);
     expect(options.headers.value('access-control-allow-origin'), isNull);
@@ -166,7 +250,7 @@ void main() {
       final socket = await Socket.connect(base.host, base.port);
       final reply = readOversizedReply(socket);
       socket.write(
-        'PUT ${base.path}upload?name=large.mp3 HTTP/1.1\r\n'
+        'PUT ${uploadAddresses[base.toString()]!.path}?name=large.mp3 HTTP/1.1\r\n'
         'Host: ${base.host}:${base.port}\r\n'
         'Content-Length: 268435457\r\nConnection: close\r\n\r\n',
       );
@@ -241,7 +325,7 @@ void main() {
       final socket = await Socket.connect(base.host, base.port);
       socket.listen((_) {}, onError: (Object _) {});
       socket.write(
-        'PUT ${base.path}upload?name=partial.mp3 HTTP/1.1\r\n'
+        'PUT ${uploadAddresses[base.toString()]!.path}?name=partial.mp3 HTTP/1.1\r\n'
         'Host: ${base.host}:${base.port}\r\nContent-Length: 1024\r\n\r\n',
       );
       socket.add([1, 2, 3]);
@@ -266,7 +350,7 @@ void main() {
     final socket = await Socket.connect(base.host, base.port);
     final reply = readOversizedReply(socket);
     socket.write(
-      'PUT ${base.path}upload?name=chunked.mp3 HTTP/1.1\r\n'
+      'PUT ${uploadAddresses[base.toString()]!.path}?name=chunked.mp3 HTTP/1.1\r\n'
       'Host: ${base.host}:${base.port}\r\n'
       'Transfer-Encoding: chunked\r\nConnection: close\r\n\r\n',
     );
@@ -295,13 +379,14 @@ void main() {
     'stopping invalidates the old URL and restarting creates a new token',
     () async {
       final first = await start((_, _) async {});
+      final oldUploadPath = uploadAddresses[first.toString()]!.path;
       await transfer.stop();
       expect(transfer.running, isFalse);
       await expectLater(client.getUrl(first), throwsA(isA<SocketException>()));
       final second = await start((_, _) async {});
       expect(transfer.running, isTrue);
-      expect(second.path, isNot(first.path));
-      final request = await client.getUrl(second.replace(path: first.path));
+      expect(uploadAddresses[second.toString()]!.path, isNot(oldUploadPath));
+      final request = await client.getUrl(second.replace(path: oldUploadPath));
       final response = await request.close();
       expect(response.statusCode, HttpStatus.notFound);
       await response.drain<void>();
