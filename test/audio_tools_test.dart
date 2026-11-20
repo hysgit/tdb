@@ -238,8 +238,9 @@ void main() {
         final path = await source();
         var released = false;
         messenger.setMockMethodCallHandler(channel, (call) async {
-          if (call.method == 'prepare')
+          if (call.method == 'prepare') {
             return {'id': 'job', 'path': path, 'duration': .1};
+          }
           if (call.method == 'verifyMp3') {
             throw PlatformException(
               code: 'invalid_output',
