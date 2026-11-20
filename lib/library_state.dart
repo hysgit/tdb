@@ -161,8 +161,9 @@ class LibraryState extends ChangeNotifier {
       final currentActiveId = activeIdProvider == null
           ? activeId
           : activeIdProvider();
-      if (selectedIds.contains(currentActiveId))
+      if (selectedIds.contains(currentActiveId)) {
         throw StateError('正在使用此文件，请先打开其他文件');
+      }
       final before = [...items];
       final deleted = items.where((i) => selectedIds.contains(i.id)).toList();
       items.removeWhere((i) => selectedIds.contains(i.id));
