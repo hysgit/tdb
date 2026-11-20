@@ -18,6 +18,7 @@ import time
 import uuid
 
 from ios_probe_diagnostics import collect_diagnostics, sanitize_output
+from ios_probe_launch import VmDiscoveryRecovery, relaunch_probe_once
 from run_ios_transfer_probe import ProbeError, checked, probe_bundle_id, select_simulator, simulator_inventory, stop_owned_process
 
 
@@ -62,11 +63,13 @@ def run_probe(args: argparse.Namespace) -> None:
                                    stderr=subprocess.STDOUT, text=True, encoding='utf-8',
                                    errors='replace', bufsize=1, start_new_session=True)
         lines: queue.Queue[str | None] = queue.Queue(maxsize=5000)
+        recovery = VmDiscoveryRecovery()
 
         def read_output() -> None:
             assert process is not None and process.stdout is not None
             try:
                 for line in process.stdout:
+                    recovery.observe(line, time.monotonic())
                     lines.put(line)
             finally:
                 lines.put(None)
@@ -88,6 +91,7 @@ def run_probe(args: argparse.Namespace) -> None:
                     raise ProbeError('Flutter produced no output within the probe silence deadline.')
                 if launch_deadline is not None and not launched and now >= launch_deadline:
                     raise ProbeError('Build completed but no Dart test start marker arrived within the launch deadline.')
+                relaunch_probe_once(recovery, device, bundle_id, checked, now)
                 try:
                     line = lines.get(timeout=1)
                 except queue.Empty:

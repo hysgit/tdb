@@ -12,6 +12,8 @@ on:
       - 'scripts/run_ios_transfer_probe.py'
       - 'scripts/run_ios_audio_probe.py'
       - 'scripts/ios_probe_diagnostics.py'
+      - 'scripts/ios_probe_launch.py'
+      - 'scripts/test_ios_probe_launch.py'
       - 'assets/**'
       - 'pubspec.*'
   workflow_dispatch:
@@ -89,6 +91,7 @@ jobs:
       - name: Probe real iOS retimed AAC and MP3 export
         run: |
           set -e
+          python3 -m unittest discover -s scripts -p test_ios_probe_launch.py
           xcodebuild -version
           python3 scripts/run_ios_audio_probe.py --timeout 1200 --launch-timeout 180 --silence-timeout 180
       - name: Save sanitized audio runtime diagnostics
@@ -121,6 +124,7 @@ jobs:
       - name: Probe real iOS LAN transfer and waveform decoding
         run: |
           set -e
+          python3 -m unittest discover -s scripts -p test_ios_probe_launch.py
           xcodebuild -version
           python3 scripts/run_ios_transfer_probe.py --timeout 1500
       - name: Save sanitized runtime diagnostics

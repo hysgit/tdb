@@ -25,6 +25,7 @@ import urllib.parse
 import urllib.request
 
 from ios_probe_diagnostics import collect_diagnostics, sanitize_output
+from ios_probe_launch import VmDiscoveryRecovery, relaunch_probe_once
 
 
 class ProbeError(RuntimeError):
@@ -185,11 +186,13 @@ def run_probe(args: argparse.Namespace) -> None:
                                stderr=subprocess.STDOUT, text=True, encoding='utf-8',
                                errors='replace', bufsize=1, start_new_session=True)
     lines: queue.Queue[str | None] = queue.Queue(maxsize=5000)
+    recovery = VmDiscoveryRecovery()
 
     def read_output():
         assert process.stdout is not None
         try:
             for line in process.stdout:
+                recovery.observe(line, time.monotonic())
                 lines.put(line)
         finally:
             lines.put(None)
@@ -210,6 +213,7 @@ def run_probe(args: argparse.Namespace) -> None:
                     raise ProbeError('Timed out waiting for the real iOS runtime probe.')
                 if time.monotonic() - last_output >= 180:
                     raise ProbeError('Flutter produced no output for 180 seconds; inspect this simulator diagnostic log.')
+                relaunch_probe_once(recovery, device['udid'], bundle_id, checked, time.monotonic())
                 try:
                     line = lines.get(timeout=1)
                 except queue.Empty:
