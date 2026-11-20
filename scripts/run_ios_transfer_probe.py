@@ -76,6 +76,20 @@ def checked(command: list[str], timeout: int) -> str:
     return result.stdout
 
 
+def simulator_inventory(*parts: str) -> dict:
+    """Allow CoreSimulator cold startup; only this read-only query may retry."""
+    command = ['xcrun', 'simctl', 'list', *parts, '--json']
+    for attempt in (1, 2):
+        print(f"CoreSimulator inventory [{' '.join(parts)}]: attempt {attempt}/2, timeout 120s.", flush=True)
+        try:
+            return json.loads(checked(command, 120))
+        except subprocess.TimeoutExpired:
+            if attempt == 2:
+                raise
+            print('CoreSimulator inventory timed out; retrying this read-only query once.', flush=True)
+    raise AssertionError('Unreachable inventory retry state')
+
+
 def lan_root(value: str) -> str:
     parsed = urllib.parse.urlsplit(value)
     try:
@@ -156,7 +170,7 @@ def run_probe(args: argparse.Namespace) -> None:
     source = repository / 'assets/demo/Introduction.mp3'
     if not source.is_file():
         raise ProbeError('The bundled Introduction.mp3 is missing.')
-    inventory = json.loads(checked(['xcrun', 'simctl', 'list', 'devices', 'available', '--json'], 30))
+    inventory = simulator_inventory('devices', 'available')
     device = select_simulator(inventory, args.device)
     print(f"Using existing simulator: {device['name']} ({device['runtime']})", flush=True)
     if device['state'] != 'Booted':

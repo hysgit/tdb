@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import argparse
 from collections import deque
-import json
 from pathlib import Path
 import queue
 import re
@@ -19,15 +18,15 @@ import time
 import uuid
 
 from ios_probe_diagnostics import collect_diagnostics, sanitize_output
-from run_ios_transfer_probe import ProbeError, checked, probe_bundle_id, select_simulator, stop_owned_process
+from run_ios_transfer_probe import ProbeError, checked, probe_bundle_id, select_simulator, simulator_inventory, stop_owned_process
 
 
 def create_simulator() -> str:
-    inventory = json.loads(checked(['xcrun', 'simctl', 'list', 'devices', 'available', '--json'], 30))
+    inventory = simulator_inventory('devices', 'available')
     template = select_simulator(inventory)
     kind = template.get('deviceTypeIdentifier')
     if not kind:
-        types = json.loads(checked(['xcrun', 'simctl', 'list', 'devicetypes', '--json'], 30))
+        types = simulator_inventory('devicetypes')
         kind = next((item['identifier'] for item in types.get('devicetypes', [])
                      if item.get('name') == template['name']), None)
     if not kind:
