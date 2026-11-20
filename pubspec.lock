@@ -548,6 +548,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
+  shine_dart:
+    dependency: "direct main"
+    description:
+      name: shine_dart
+      sha256: e376b5150c2d0d9d1c99e96b6a05f5a26da369c62d906546bea47a3e2bb9c769
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
