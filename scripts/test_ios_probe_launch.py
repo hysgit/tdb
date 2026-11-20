@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import Mock
 
 from ios_probe_launch import DEBUG_ARGUMENTS, VmDiscoveryRecovery, relaunch_probe_once
+from run_ios_transfer_probe import xcode_build_in_progress
 
 
 UDID = '12345678-1234-1234-1234-123456789ABC'
@@ -13,6 +14,17 @@ WAIT = 'Waiting for VM Service port to be available...'
 
 
 class VmRecoveryTests(unittest.TestCase):
+    def test_buffered_xcode_build_remains_building_until_done_or_explicit_failure(self):
+        building = xcode_build_in_progress('[+12 ms] Running Xcode build...', False)
+        self.assertTrue(building)
+        # No log lines for >180 seconds does not imply the compiler has stopped.
+        self.assertTrue(xcode_build_in_progress('', building))
+        self.assertTrue(xcode_build_in_progress('executing: xcodebuild ...', building))
+        self.assertFalse(xcode_build_in_progress('Xcode build done. 245.5s', building))
+        for failure in ['** BUILD FAILED **', 'Error (Xcode): Compile failed', 'Failed to build iOS app']:
+            self.assertFalse(xcode_build_in_progress(failure, building))
+        self.assertFalse(xcode_build_in_progress(WAIT, False))
+
     def test_requires_explicit_wait_and_full_twenty_seconds(self):
         gate = VmDiscoveryRecovery()
         self.assertFalse(gate.claim(100))

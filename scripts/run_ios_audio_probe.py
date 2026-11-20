@@ -19,7 +19,7 @@ import uuid
 
 from ios_probe_diagnostics import collect_diagnostics, sanitize_output
 from ios_probe_launch import VmDiscoveryRecovery, relaunch_probe_once
-from run_ios_transfer_probe import ProbeError, checked, probe_bundle_id, select_simulator, simulator_inventory, stop_owned_process
+from run_ios_transfer_probe import ProbeError, checked, probe_bundle_id, select_simulator, simulator_inventory, stop_owned_process, xcode_build_in_progress
 
 
 def create_simulator() -> str:
@@ -82,16 +82,18 @@ def run_probe(args: argparse.Namespace) -> None:
         launched = False
         verified = False
         formats: set[str] = set()
+        building = False
         with log_path.open('w', encoding='utf-8') as log:
             while True:
                 now = time.monotonic()
                 if now >= deadline:
                     raise ProbeError('Audio probe exceeded its overall build/test deadline.')
-                if now - last_output >= args.silence_timeout:
+                if not building and now - last_output >= args.silence_timeout:
                     raise ProbeError('Flutter produced no output within the probe silence deadline.')
-                if launch_deadline is not None and not launched and now >= launch_deadline:
+                if not building and launch_deadline is not None and not launched and now >= launch_deadline:
                     raise ProbeError('Build completed but no Dart test start marker arrived within the launch deadline.')
-                relaunch_probe_once(recovery, device, bundle_id, checked, now)
+                if not building:
+                    relaunch_probe_once(recovery, device, bundle_id, checked, now)
                 try:
                     line = lines.get(timeout=1)
                 except queue.Empty:
@@ -101,6 +103,9 @@ def run_probe(args: argparse.Namespace) -> None:
                 if line is None:
                     break
                 last_output = time.monotonic()
+                building = xcode_build_in_progress(line, building)
+                if building:
+                    launch_deadline = None
                 clean = sanitize_output(line)
                 log.write(clean); log.flush()
                 recent.append(clean)

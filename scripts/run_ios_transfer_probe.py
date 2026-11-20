@@ -91,6 +91,16 @@ def simulator_inventory(*parts: str) -> dict:
     raise AssertionError('Unreachable inventory retry state')
 
 
+def xcode_build_in_progress(line: str, previous: bool) -> bool:
+    if any(marker in line for marker in (
+        'Xcode build done', 'Xcode build failed', '** BUILD FAILED **',
+        'Failed to build iOS app', 'Error (Xcode)',
+        'Could not build the application for the simulator',
+    )):
+        return False
+    return True if 'Running Xcode build' in line else previous
+
+
 def lan_root(value: str) -> str:
     parsed = urllib.parse.urlsplit(value)
     try:
@@ -206,14 +216,16 @@ def run_probe(args: argparse.Namespace) -> None:
     uploaded = False
     verified = False
     ended = False
+    building = False
     try:
         with log_path.open('w', encoding='utf-8') as log:
             while not ended:
                 if time.monotonic() >= deadline:
                     raise ProbeError('Timed out waiting for the real iOS runtime probe.')
-                if time.monotonic() - last_output >= 180:
+                if not building and time.monotonic() - last_output >= 180:
                     raise ProbeError('Flutter produced no output for 180 seconds; inspect this simulator diagnostic log.')
-                relaunch_probe_once(recovery, device['udid'], bundle_id, checked, time.monotonic())
+                if not building:
+                    relaunch_probe_once(recovery, device['udid'], bundle_id, checked, time.monotonic())
                 try:
                     line = lines.get(timeout=1)
                 except queue.Empty:
@@ -225,6 +237,7 @@ def run_probe(args: argparse.Namespace) -> None:
                     continue
                 last_output = time.monotonic()
                 plain = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', line)
+                building = xcode_build_in_progress(plain, building)
                 clean = sanitize_output(redact(plain))
                 log.write(clean)
                 log.flush()
