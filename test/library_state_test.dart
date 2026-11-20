@@ -290,6 +290,72 @@ void main() {
   );
 
   test(
+    'queued deletion rechecks the active media before changing its index',
+    () async {
+      final a = await media('a.mp3');
+      final b = await media('b.mp3');
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      final blocked = repository.writes + 1;
+      repository.beforeWrite = (call, _) async {
+        if (call == blocked) {
+          entered.complete();
+          await release.future;
+        }
+      };
+      final saving = state.save();
+      await entered.future;
+      String? active = a.id;
+      var providerCalls = 0;
+      final deleting = state.delete(
+        {b.id},
+        activeId: active,
+        activeIdProvider: () {
+          providerCalls++;
+          return active;
+        },
+      );
+      final rejected = expectLater(deleting, throwsStateError);
+      expect(providerCalls, 0);
+      active = b.id;
+      release.complete();
+      await saving;
+      await rejected;
+      expect(providerCalls, 1);
+      expect(state.items.map((i) => i.id), [a.id, b.id]);
+      expect(await File(b.path).exists(), isTrue);
+      expect(
+        repository.writes,
+        blocked,
+        reason: 'Refusal must not write a deletion generation',
+      );
+      expect(
+        ((await repository.read())!['items'] as List).map((i) => i['id']),
+        [a.id, b.id],
+      );
+    },
+  );
+
+  test(
+    'legacy active ID remains supported and provider null means playback stopped',
+    () async {
+      final item = await media('a.mp3');
+      await expectLater(
+        state.delete({item.id}, activeId: item.id),
+        throwsStateError,
+      );
+      expect(await File(item.path).exists(), isTrue);
+      await state.delete(
+        {item.id},
+        activeId: item.id,
+        activeIdProvider: () => null,
+      );
+      expect(state.items, isEmpty);
+      expect(await File(item.path).exists(), isFalse);
+    },
+  );
+
+  test(
     'partial reorder is stable and repeated move/reorder is idempotent',
     () async {
       final a = await media('a.mp3');

@@ -151,10 +151,18 @@ class LibraryState extends ChangeNotifier {
     });
   }
 
-  Future<void> delete(Set<String> ids, {String? activeId}) {
+  Future<void> delete(
+    Set<String> ids, {
+    String? activeId,
+    String? Function()? activeIdProvider,
+  }) {
     final selectedIds = {...ids};
     return _ordered(() async {
-      if (selectedIds.contains(activeId)) throw StateError('正在使用此文件，请先打开其他文件');
+      final currentActiveId = activeIdProvider == null
+          ? activeId
+          : activeIdProvider();
+      if (selectedIds.contains(currentActiveId))
+        throw StateError('正在使用此文件，请先打开其他文件');
       final before = [...items];
       final deleted = items.where((i) => selectedIds.contains(i.id)).toList();
       items.removeWhere((i) => selectedIds.contains(i.id));
